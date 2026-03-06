@@ -1,0 +1,3389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- TV-safe viewport: no zoom, safe for 720p/1080p/4K screens -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#07070F">
+<title>⚡ BUZZER SHOWDOWN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://api.qrserver.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<!-- QR codes now via qrserver.com API — no client-side canvas library needed -->
+<style>
+:root{
+  --gold:#FFD700;--gold2:#FF9500;--red:#FF3B3B;--green:#00FF88;--blue:#00BFFF;--purple:#BB44FF;
+  --bg:#07070F;--bg2:#0E0E1C;--surf:#141426;--surf2:#1C1C34;--txt:#EEEEFF;--muted:#7777AA;--r:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--txt)}
+.screen{display:none;width:100%;height:100vh;overflow-y:auto;flex-direction:column}
+.screen.active{display:flex}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--surf2);border-radius:4px}
+
+/* ══ LANDING ══ */
+#landing{align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 90% 60% at 50% 0%,#1a0e4a 0%,var(--bg) 70%)}
+.land-inner{text-align:center;padding:2rem 1.5rem;max-width:460px;width:100%}
+.logo{font-family:'Black Ops One',cursive;font-size:clamp(2.8rem,10vw,5rem);letter-spacing:4px;
+  background:linear-gradient(135deg,#FFE566,#FF9500,#FFD700);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;filter:drop-shadow(0 0 40px rgba(255,200,0,.45));
+  animation:lp 3s ease-in-out infinite}
+@keyframes lp{0%,100%{filter:drop-shadow(0 0 30px rgba(255,200,0,.35))}50%{filter:drop-shadow(0 0 60px rgba(255,200,0,.75))}}
+.logo-sub{color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:6px;font-size:.9rem;margin:.4rem 0 2.5rem}
+.land-btns{display:flex;flex-direction:column;gap:.85rem}
+.lbtn{padding:1.1rem 1.5rem;border-radius:13px;font-family:'Black Ops One',cursive;font-size:1.2rem;letter-spacing:3px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.6rem;border:none}
+.lbtn.host{background:linear-gradient(135deg,#FFD700,#FF8C00);color:#07070F;box-shadow:0 4px 30px rgba(255,180,0,.3)}
+.lbtn.host:hover{transform:translateY(-2px);box-shadow:0 8px 50px rgba(255,180,0,.5)}
+.lbtn.player{background:rgba(0,191,255,.08);border:2px solid rgba(0,191,255,.3);color:var(--blue)}
+.lbtn.player:hover{background:rgba(0,191,255,.15);transform:translateY(-2px)}
+.lbtn.monitor{background:rgba(187,68,255,.08);border:2px solid rgba(187,68,255,.3);color:var(--purple)}
+.lbtn.monitor:hover{background:rgba(187,68,255,.15);transform:translateY(-2px)}
+.lbtn.recover{background:rgba(0,255,136,.06);border:2px solid rgba(0,255,136,.2);color:var(--green);font-size:.95rem;letter-spacing:2px}
+.lbtn.recover:hover{background:rgba(0,255,136,.12);transform:translateY(-2px)}
+.lbtn:active{transform:translateY(0)!important}
+.land-version{margin-top:1.5rem;font-family:'Barlow Condensed',sans-serif;font-size:.75rem;letter-spacing:3px;color:rgba(255,255,255,.12)}
+
+/* ══ SETUP ══ */
+#setup{align-items:center;padding:2rem 1rem 2rem;
+  background:radial-gradient(ellipse 80% 50% at 50% -10%,#1a0e4a 0%,var(--bg) 70%)}
+.card{background:var(--surf);border:1px solid rgba(255,215,0,.1);border-radius:var(--r);padding:1.75rem;width:100%;max-width:540px;margin-bottom:1rem}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:.95rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:1.1rem;display:flex;align-items:center;justify-content:space-between}
+.back-btn{padding:.3rem .7rem;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:none;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:.82rem;letter-spacing:1px;cursor:pointer}
+.back-btn:hover{color:var(--txt);border-color:rgba(255,255,255,.25)}
+.team-rows{display:flex;flex-direction:column;gap:.55rem;margin-bottom:.9rem}
+.team-row{display:flex;align-items:center;gap:.6rem}
+.cswatch{width:20px;height:20px;border-radius:50%;flex-shrink:0;border:2px solid rgba(255,255,255,.15)}
+.tinput{flex:1;background:var(--bg2);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.58rem .9rem;color:var(--txt);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+.tinput:focus{border-color:var(--gold)}
+.rmbtn{width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,60,60,.25);background:none;color:var(--red);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rmbtn:hover{background:rgba(255,60,60,.12)}
+.addbtn{width:100%;padding:.58rem;background:rgba(255,215,0,.05);border:1px dashed rgba(255,215,0,.25);border-radius:8px;color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-size:.9rem;letter-spacing:2px;cursor:pointer;margin-bottom:1.1rem}
+.addbtn:hover{background:rgba(255,215,0,.1)}
+.divider{height:1px;background:rgba(255,255,255,.06);margin:1.1rem 0}
+.opts{display:flex;gap:1.25rem;flex-wrap:wrap;margin-bottom:1.1rem}
+.otog{display:flex;align-items:center;gap:.5rem;cursor:pointer;user-select:none}
+.otog input{display:none}
+.tv{width:36px;height:19px;background:var(--surf2);border-radius:10px;position:relative;transition:background .2s;border:1px solid rgba(255,255,255,.08)}
+.tv::after{content:'';position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:var(--muted);transition:all .2s}
+.otog input:checked~.tv{background:var(--gold2)}.otog input:checked~.tv::after{left:19px;background:#fff}
+.olbl{font-family:'Barlow Condensed',sans-serif;font-size:.88rem;letter-spacing:1px;color:var(--muted)}
+.statusline{font-family:'Barlow Condensed',sans-serif;font-size:.85rem;letter-spacing:2px;color:var(--muted);text-align:center;margin-bottom:.75rem;min-height:1.1rem}
+.startbtn{width:100%;padding:1.05rem;border:none;border-radius:11px;background:linear-gradient(135deg,#FFD700,#FF8C00);font-family:'Black Ops One',cursive;font-size:1.35rem;letter-spacing:3px;color:#07070F;cursor:pointer;transition:all .2s;box-shadow:0 4px 35px rgba(255,180,0,.3)}
+.startbtn:hover{transform:translateY(-2px);box-shadow:0 8px 50px rgba(255,180,0,.5)}
+.startbtn:active{transform:translateY(0)}.startbtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* ══ HOST ══ */
+#host{background:radial-gradient(ellipse 100% 40% at 50% -5%,#0a1540 0%,var(--bg) 65%);padding:1.25rem}
+.htop{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;margin-bottom:1.1rem;flex-wrap:wrap}
+.htitle{font-family:'Black Ops One',cursive;font-size:1.5rem;color:var(--gold);letter-spacing:2px}
+.hsub{font-family:'Barlow Condensed',sans-serif;color:var(--muted);font-size:.82rem;letter-spacing:3px;text-transform:uppercase;margin-top:.15rem}
+.topbtns{display:flex;gap:.5rem;flex-wrap:wrap}
+.tb{padding:.42rem .85rem;border-radius:7px;border:1px solid rgba(255,255,255,.12);background:var(--surf);color:var(--txt);font-family:'Barlow Condensed',sans-serif;font-size:.85rem;letter-spacing:1px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tb:hover{border-color:var(--gold);color:var(--gold)}.tb.red{border-color:rgba(255,60,60,.3);color:var(--red)}.tb.red:hover{background:rgba(255,60,60,.1)}
+.tb.purple{border-color:rgba(187,68,255,.3);color:var(--purple)}.tb.purple:hover{background:rgba(187,68,255,.1)}
+
+/* INVITE */
+.invbox{background:var(--surf);border:1px solid rgba(255,215,0,.15);border-radius:var(--r);padding:1.25rem;margin-bottom:1.1rem}
+.rc-hero{text-align:center;padding:.5rem 0 .9rem}
+.rc-label{font-family:'Barlow Condensed',sans-serif;color:var(--muted);font-size:.78rem;letter-spacing:5px;text-transform:uppercase;margin-bottom:.5rem}
+.rc-code{font-family:'Black Ops One',cursive;font-size:clamp(2.8rem,10vw,4.5rem);letter-spacing:12px;color:var(--gold);filter:drop-shadow(0 0 20px rgba(255,200,0,.5));background:var(--bg2);border:2px solid rgba(255,215,0,.25);border-radius:12px;padding:.2rem 1.5rem;display:inline-block;margin-bottom:.65rem}
+.rc-instruction{font-family:'Barlow Condensed',sans-serif;font-size:.9rem;color:var(--txt);letter-spacing:1px}
+.rc-instruction span{color:var(--gold)}
+.inv-divider{display:flex;align-items:center;gap:.75rem;margin:.85rem 0;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:.8rem;letter-spacing:2px}
+.inv-divider::before,.inv-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
+.inv-bottom{display:flex;gap:1.25rem;align-items:flex-start;flex-wrap:wrap}
+.inv-qr-wrap{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:.35rem}
+.inv-qr-label{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.inv-right{flex:1;min-width:160px}
+.inv-lbl{font-family:'Barlow Condensed',sans-serif;color:var(--muted);font-size:.78rem;letter-spacing:3px;text-transform:uppercase;margin-bottom:.3rem}
+.inv-note{font-family:'Barlow',sans-serif;font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:.75rem}
+.inv-note strong{color:var(--txt)}
+.inv-btns{display:flex;gap:.5rem;flex-wrap:wrap}
+.copybtn{padding:.38rem .9rem;border-radius:6px;border:1px solid rgba(0,255,136,.3);background:rgba(0,255,136,.07);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:.85rem;letter-spacing:1px;cursor:pointer;transition:all .2s}
+.copybtn:hover{background:rgba(0,255,136,.15)}
+.sharebtn{padding:.38rem .9rem;border-radius:6px;border:1px solid rgba(255,215,0,.3);background:rgba(255,215,0,.07);color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-size:.85rem;letter-spacing:1px;cursor:pointer;transition:all .2s}
+.sharebtn:hover{background:rgba(255,215,0,.15)}
+
+/* ── ROLE LINK ROWS ── */
+.role-link-row{display:flex;align-items:center;gap:.5rem;background:var(--bg2);border-radius:8px;padding:.45rem .75rem;border:1px solid rgba(255,255,255,.06);min-height:2.4rem}
+.rl-icon{font-size:1rem;flex-shrink:0}
+.rl-label{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;letter-spacing:3px;color:var(--muted);min-width:82px;flex-shrink:0;text-transform:uppercase}
+.rl-url{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;color:var(--green);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.8}
+.rl-copy,.rl-share{flex-shrink:0;padding:.18rem .45rem;border-radius:5px;border:1px solid rgba(255,255,255,.08);background:none;color:var(--muted);font-size:.8rem;cursor:pointer;transition:all .15s;line-height:1}
+.rl-copy:hover{border-color:var(--green);color:var(--green)}.rl-share:hover{border-color:var(--gold);color:var(--gold)}
+
+/* TIMER */
+.qtimer-wrap{display:flex;align-items:center;gap:.75rem;background:var(--surf);border-radius:10px;padding:.7rem 1rem;margin-bottom:1.1rem;border:1px solid rgba(255,255,255,.05)}
+.qtimer-lbl{font-family:'Barlow Condensed',sans-serif;font-size:.82rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase}
+.qtimer-display{font-family:'Black Ops One',cursive;font-size:1.6rem;color:var(--gold);min-width:3rem;text-align:center}
+.qtimer-display.warn{color:var(--red);animation:twarn .5s ease-in-out infinite alternate}
+@keyframes twarn{from{opacity:1}to{opacity:.4}}
+.timer-btn{padding:.3rem .7rem;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:none;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:.82rem;letter-spacing:1px;cursor:pointer;transition:all .2s}
+.timer-btn:hover{border-color:rgba(255,255,255,.3);color:var(--txt)}
+.timer-btn.active{border-color:var(--red);color:var(--red)}
+.timer-presets{display:flex;gap:.35rem;flex-wrap:wrap}
+.tpreset{padding:.25rem .5rem;border-radius:5px;border:1px solid rgba(255,255,255,.08);background:none;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:.8rem;cursor:pointer;transition:all .15s}
+.tpreset:hover{border-color:var(--gold);color:var(--gold)}
+.tpreset.sel-linger{border-color:var(--blue);color:var(--blue);background:rgba(0,191,255,.1)}
+
+.pjoined{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:1.1rem;min-height:32px}
+.pchip{padding:.28rem .75rem;border-radius:20px;font-family:'Barlow Condensed',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:1px;background:var(--surf2);display:flex;align-items:center;gap:.35rem;animation:chipIn .3s ease;cursor:pointer;transition:border-color .2s}
+@keyframes chipIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+.chipdot{width:7px;height:7px;border-radius:50%}
+.pchip:hover .kick-x{display:inline}
+.kick-x{display:none;color:var(--red);margin-left:.2rem;font-size:.8rem}
+
+.bpanel{background:var(--surf);border-radius:var(--r);padding:1.1rem;margin-bottom:1.1rem;border:1px solid rgba(255,255,255,.05)}
+.ptitle{font-family:'Barlow Condensed',sans-serif;font-size:.88rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:.8rem}
+.blist{display:flex;flex-direction:column;gap:.42rem;min-height:64px}
+.brow{display:flex;align-items:center;gap:.8rem;padding:.6rem .9rem;background:var(--surf2);border-radius:9px;animation:rowIn .3s ease;border-left:3px solid transparent}
+@keyframes rowIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}
+.brk{font-family:'Black Ops One',cursive;font-size:1.35rem;min-width:1.7rem;text-align:center}
+.brk.r1{color:var(--gold);filter:drop-shadow(0 0 8px rgba(255,200,0,.6))}.brk.r2{color:#C0C0C0}.brk.r3{color:#CD7F32}.brk.rN{color:var(--muted);font-size:.95rem}
+.bname{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.05rem;flex:1}
+.bteam{font-family:'Barlow Condensed',sans-serif;font-size:.82rem;color:var(--muted)}
+.btime{font-family:'Barlow Condensed',sans-serif;font-size:.82rem;color:var(--muted);background:rgba(255,255,255,.05);padding:.12rem .55rem;border-radius:10px}
+.bdelta{font-size:.78rem;color:var(--muted);min-width:62px;text-align:right}
+.empty{color:var(--muted);font-style:italic;font-size:.88rem;text-align:center;padding:1rem}
+
+.hactions{display:flex;gap:.65rem;margin-bottom:1.1rem;flex-wrap:wrap}
+.habtn{flex:1;min-width:120px;padding:.82rem 1rem;border:none;border-radius:9px;font-family:'Barlow Condensed',sans-serif;font-size:1rem;letter-spacing:2px;font-weight:700;cursor:pointer;transition:all .2s}
+.habtn.unlock{background:linear-gradient(135deg,#00FF88,#00CC60);color:#07070F;box-shadow:0 4px 20px rgba(0,255,136,.2)}
+.habtn.unlock:hover{box-shadow:0 4px 30px rgba(0,255,136,.4);transform:translateY(-1px)}
+.habtn.reset{background:linear-gradient(135deg,#FF3B3B,#BB0000);color:#fff;box-shadow:0 4px 20px rgba(255,60,60,.2)}
+.habtn.reset:hover{box-shadow:0 4px 30px rgba(255,60,60,.4);transform:translateY(-1px)}
+.habtn.next{background:linear-gradient(135deg,#00BFFF,#0077CC);color:#fff;box-shadow:0 4px 20px rgba(0,180,255,.2)}
+.habtn.next:hover{box-shadow:0 4px 30px rgba(0,180,255,.4);transform:translateY(-1px)}
+.habtn:active{transform:translateY(0)!important}
+
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.6rem}
+.scard{background:var(--surf);border-radius:11px;padding:.75rem;text-align:center;border:2px solid rgba(255,255,255,.05)}
+.scname{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.8rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scpts{font-family:'Black Ops One',cursive;font-size:1.5rem;line-height:1.15;margin-bottom:.35rem;word-break:break-all}
+/* Two separate rows of buttons — add row and sub row */
+.scbtns-wrap{display:flex;flex-direction:column;gap:.25rem}
+.scbtns{display:flex;gap:.25rem;justify-content:center;flex-wrap:wrap}
+.scbtn{flex:1;min-width:0;padding:.28rem .1rem;border-radius:5px;border:none;font-size:.72rem;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scbtn.p{background:rgba(0,255,136,.12);color:var(--green)}.scbtn.p:hover{background:rgba(0,255,136,.25)}
+.scbtn.m{background:rgba(255,60,60,.12);color:var(--red)}.scbtn.m:hover{background:rgba(255,60,60,.25)}
+
+/* ══ PLAYER ══ */
+#player{align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 80% 60% at 50% 110%,#0d2040 0%,var(--bg) 60%)}
+.jwrap{display:flex;flex-direction:column;align-items:center;gap:1rem;padding:2rem 1.25rem;width:100%;max-width:420px}
+.jlogo{font-family:'Black Ops One',cursive;font-size:2rem;color:var(--gold);letter-spacing:3px;filter:drop-shadow(0 0 20px rgba(255,200,0,.4))}
+.rc-entry-label{font-family:'Barlow Condensed',sans-serif;color:var(--muted);letter-spacing:4px;font-size:.88rem;text-align:center}
+.biginput{width:100%;padding:.9rem 1.1rem;font-size:2rem;text-align:center;letter-spacing:10px;text-transform:uppercase;background:var(--surf);border:2px solid rgba(255,215,0,.3);border-radius:12px;color:var(--gold);font-family:'Black Ops One',cursive;outline:none;transition:border-color .2s;caret-color:var(--gold)}
+.biginput:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,.1)}
+.biginput::placeholder{color:rgba(255,215,0,.2);letter-spacing:6px}
+.nameinput{width:100%;padding:.82rem 1.1rem;font-size:1.05rem;text-align:center;background:var(--surf);border:2px solid rgba(255,255,255,.1);border-radius:11px;color:var(--txt);font-family:'Barlow',sans-serif;outline:none;transition:border-color .2s}
+.nameinput:focus{border-color:rgba(255,255,255,.3)}
+.team-section-label{font-family:'Barlow Condensed',sans-serif;font-size:.82rem;letter-spacing:3px;color:var(--muted);text-align:center}
+.tgrid{width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem}
+.topt{padding:.7rem;border-radius:9px;border:2px solid rgba(255,255,255,.08);background:var(--surf);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;text-align:center;transition:all .2s}
+.topt:hover{border-color:rgba(255,255,255,.25)}.topt.sel{filter:brightness(1.15)}
+.tgrid-ph{color:var(--muted);font-size:.85rem;grid-column:1/-1;text-align:center;padding:.5rem 0;font-style:italic}
+.joinbtn{width:100%;padding:.95rem;border:none;border-radius:11px;background:linear-gradient(135deg,var(--gold),var(--gold2));font-family:'Black Ops One',cursive;font-size:1.25rem;letter-spacing:2px;color:#07070F;cursor:pointer;transition:all .2s}
+.joinbtn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,200,0,.4)}
+.joinbtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.errmsg{color:var(--red);font-family:'Barlow Condensed',sans-serif;font-size:.9rem;letter-spacing:1px;min-height:1.1rem;text-align:center}
+.pulsemsg{color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:.88rem;letter-spacing:2px;text-align:center;animation:pm 1.2s ease-in-out infinite;padding:.35rem 0}
+@keyframes pm{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* BUZZER VIEW */
+.buzzfull{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:2rem;text-align:center;width:100%}
+.pvname{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase}
+.pvteam{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.8rem;letter-spacing:2px;margin-bottom:.5rem}
+.buzzbtn{width:min(70vw,270px);height:min(70vw,270px);border-radius:50%;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Black Ops One',cursive;user-select:none;-webkit-user-select:none;transition:transform .1s}
+.buzzbtn:not(:disabled){animation:bp 2s ease-in-out infinite}
+@keyframes bp{0%,100%{transform:scale(1);box-shadow:0 0 30px 0 rgba(255,255,255,.1),inset 0 -10px 25px rgba(0,0,0,.3)}50%{transform:scale(1.025);box-shadow:0 0 60px 12px rgba(255,255,255,.08),inset 0 -10px 25px rgba(0,0,0,.3)}}
+.buzzbtn:active:not(:disabled){transform:scale(.91)!important}.buzzbtn:disabled{opacity:.35;cursor:not-allowed;animation:none}
+.bzicon{font-size:3.2rem}.bzlbl{font-size:1.45rem;letter-spacing:4px;margin-top:.2rem}
+.bzstatus{margin-top:1.5rem;font-family:'Barlow Condensed',sans-serif;font-size:1.15rem;letter-spacing:2px;color:var(--muted);min-height:1.8rem}
+.bzstatus.go{color:var(--gold);font-size:1.55rem;animation:sp .3s ease}.bzstatus.locked{color:var(--red)}
+@keyframes sp{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* Player team score */
+.pv-score-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:1.5rem;gap:.1rem}
+.pv-score-lbl{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase}
+.pv-score-val{font-family:'Black Ops One',cursive;font-size:2.2rem;line-height:1.1;transition:transform .2s,color .2s}
+.pv-score-val.bumped{animation:scoreBump .4s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes scoreBump{0%{transform:scale(1)}50%{transform:scale(1.35)}100%{transform:scale(1)}}
+
+/* Player countdown bar */
+.pcount-wrap{width:min(70vw,270px);margin-top:.75rem;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.pcount-bar{height:100%;border-radius:3px;transition:width .1s linear;background:var(--gold)}
+.pcount-bar.warn{background:var(--red)}
+
+/* Connection badge */
+.conn-badge{display:flex;align-items:center;gap:.4rem;font-family:'Barlow Condensed',sans-serif;font-size:.78rem;letter-spacing:2px;color:var(--muted);margin-top:.75rem}
+.cdot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}
+.cdot.bad{background:var(--red);box-shadow:0 0 6px var(--red);animation:blink .7s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* ══ MONITOR JOIN ══ */
+#monitor-join{align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 80% 60% at 50% 110%,#0d0d30 0%,var(--bg) 60%)}
+
+/* ══ MONITOR ══ */
+#monitor{background:#030308;padding:2vw;overflow:hidden;justify-content:space-between;position:relative}
+.scanlines{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.04) 2px,rgba(0,0,0,.04) 4px)}
+.mhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1vh;flex-shrink:0}
+.mlogo{font-family:'Black Ops One',cursive;font-size:clamp(1.3rem,3.5vw,2.8rem);color:var(--gold);letter-spacing:3px}
+.mhdr-right{display:flex;align-items:center;gap:1.5vw}
+.mqnum{font-family:'Barlow Condensed',sans-serif;font-size:clamp(.85rem,1.8vw,1.3rem);letter-spacing:4px;color:var(--muted)}
+.mbadge{font-family:'Barlow Condensed',sans-serif;font-size:clamp(.7rem,1.3vw,1rem);letter-spacing:3px;padding:.28rem .8rem;border-radius:20px;text-transform:uppercase;transition:background .3s,border-color .3s,color .3s}
+.mbadge.locked{background:rgba(255,60,60,.12);border:1px solid rgba(255,60,60,.25);color:var(--red)}
+.mbadge.open{background:rgba(0,255,136,.2);border:1px solid rgba(0,255,136,.5);color:var(--green);animation:badgeUnlock .6s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes badgeUnlock{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.25)}100%{transform:scale(1);opacity:1}}
+.mfsbtn{padding:.28rem .7rem;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:clamp(.65rem,1.2vw,.9rem);letter-spacing:1px;cursor:pointer;transition:all .2s}
+.mfsbtn:hover{border-color:var(--gold);color:var(--gold)}
+.mon-timer{font-family:'Black Ops One',cursive;font-size:clamp(1rem,2.5vw,2rem);color:var(--gold);letter-spacing:3px;transition:color .3s}
+.mon-timer.warn{color:var(--red);animation:twarn .5s ease-in-out infinite alternate}
+
+/* ── MONITOR MAIN AREA — dual mode with smooth transitions ── */
+.mbuzz{flex:1;display:flex;flex-direction:column;gap:.8vh;margin-bottom:1vh;overflow:hidden;position:relative}
+/* Fade wrapper — child divs cross-fade when switching modes */
+.mbuzz-content{display:contents}
+
+/* ── BUZZ LIST ROWS ── */
+.mrow{display:flex;align-items:center;gap:2vw;padding:1vh 2vw;border-radius:11px;background:var(--surf);border-left:6px solid transparent;flex:1;min-height:50px;max-height:22vh;position:relative;overflow:hidden;animation:mrowIn .4s cubic-bezier(.175,.885,.32,1.275) both}
+@keyframes mrowIn{from{opacity:0;transform:translateX(-30px) scale(.97)}to{opacity:1;transform:translateX(0) scale(1)}}
+.mrow::before{content:'';position:absolute;left:0;top:0;bottom:0;width:50%;background:linear-gradient(to right,var(--rc,transparent),transparent);opacity:.07}
+.mrow.mfirst{flex:1.6;max-height:28vh;background:linear-gradient(135deg,rgba(255,215,0,.08),var(--surf));box-shadow:0 0 40px rgba(255,215,0,.05) inset}
+.mrnum{font-family:'Black Ops One',cursive;font-size:clamp(2rem,4.5vw,4rem);min-width:3.5vw;text-align:center;line-height:1}
+.mrnum.r1{color:var(--gold);filter:drop-shadow(0 0 15px rgba(255,200,0,.7))}.mrnum.r2{color:#C0C0C0}.mrnum.r3{color:#CD7F32}.mrnum.rN{color:var(--muted);font-size:clamp(1.2rem,2.5vw,2rem)}
+.minfo{flex:1;min-width:0}
+.mtname{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(1.3rem,3.2vw,2.6rem);line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mpname{font-size:clamp(.75rem,1.6vw,1.2rem);color:var(--muted);margin-top:.2rem}
+.mtcol{text-align:right;flex-shrink:0}
+.melapsed{font-family:'Black Ops One',cursive;font-size:clamp(1.3rem,2.8vw,2.4rem);line-height:1}
+.melapsed.r1{font-size:clamp(1.8rem,4vw,3.2rem);color:var(--gold);filter:drop-shadow(0 0 10px rgba(255,200,0,.5))}
+.mdelta{font-family:'Barlow Condensed',sans-serif;font-size:clamp(.7rem,1.3vw,1rem);color:var(--muted);margin-top:.15rem}
+
+/* ── WAITING / EMPTY STATES ── */
+.mempty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;animation:modeIn .5s ease}
+.mwicon{font-size:clamp(3rem,8vw,6rem);animation:wb 1.2s ease-in-out infinite}
+@keyframes wb{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.mwtxt{font-family:'Black Ops One',cursive;font-size:clamp(1.4rem,4vw,3rem);letter-spacing:5px;color:var(--muted);animation:wp 2s ease-in-out infinite}
+@keyframes wp{0%,100%{opacity:.35}50%{opacity:.75}}
+
+/* UNLOCK flash banner — overlaid on the mbuzz area */
+.m-unlock-banner{position:absolute;top:0;right:0;bottom:0;left:0;z-index:55;display:flex;align-items:center;justify-content:center;pointer-events:none;animation:unlockBanner .9s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes unlockBanner{0%{opacity:0;transform:scale(.6)}20%{opacity:1;transform:scale(1.08)}45%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(1)}}
+.m-unlock-txt{font-family:'Black Ops One',cursive;font-size:clamp(3rem,10vw,8rem);letter-spacing:8px;color:var(--green);filter:drop-shadow(0 0 60px rgba(0,255,136,.9));text-shadow:0 0 40px rgba(0,255,136,.6)}
+
+/* RESET banner */
+.m-reset-banner{position:absolute;top:0;right:0;bottom:0;left:0;z-index:55;display:flex;align-items:center;justify-content:center;pointer-events:none;animation:resetBanner .7s ease forwards}
+@keyframes resetBanner{0%{opacity:0;transform:translateY(-30px)}25%{opacity:1;transform:translateY(0)}75%{opacity:1}100%{opacity:0}}
+.m-reset-txt{font-family:'Black Ops One',cursive;font-size:clamp(1.5rem,5vw,4rem);letter-spacing:6px;color:var(--muted);filter:drop-shadow(0 0 20px rgba(150,150,200,.4))}
+
+/* ── MONITOR STANDINGS VIEW (default locked state) ── */
+@keyframes modeIn{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
+.mon-standings-full{display:flex;flex-direction:column;flex:1;gap:1vh;overflow:hidden;animation:modeIn .45s ease}
+.msf-title{font-family:'Black Ops One',cursive;font-size:clamp(.8rem,1.8vw,1.3rem);letter-spacing:6px;color:var(--muted);text-align:center;margin-bottom:.5vh;opacity:.55}
+.msf-row{display:flex;align-items:center;gap:2vw;padding:1.4vh 2vw;border-radius:12px;border-left:7px solid transparent;background:var(--surf);animation:msfin .55s cubic-bezier(.175,.885,.32,1.275) both}
+@keyframes msfin{from{opacity:0;transform:translateX(-50px) scale(.95)}to{opacity:1;transform:translateX(0) scale(1)}}
+.msf-row.msf-first{background:linear-gradient(135deg,rgba(255,215,0,.1),var(--surf));animation:msfin .55s cubic-bezier(.175,.885,.32,1.275) both, goldPulse 3.5s 1s ease-in-out infinite}
+@keyframes goldPulse{0%,100%{box-shadow:0 0 20px rgba(255,200,0,.05)}50%{box-shadow:0 0 60px rgba(255,200,0,.18),inset 0 0 30px rgba(255,200,0,.04)}}
+.msf-rank{font-family:'Black Ops One',cursive;font-size:clamp(1.6rem,3.5vw,3.2rem);min-width:3vw;text-align:center;line-height:1}
+.msf-rank.r1{color:var(--gold);filter:drop-shadow(0 0 12px rgba(255,200,0,.8))}.msf-rank.r2{color:#C0C0C0}.msf-rank.r3{color:#CD7F32}.msf-rank.rn{color:var(--muted);font-size:clamp(1rem,2vw,1.8rem)}
+.msf-info{flex:1;min-width:0}
+.msf-name{font-family:'Black Ops One',cursive;font-size:clamp(1.1rem,3vw,2.6rem);letter-spacing:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msf-bar-wrap{height:6px;background:rgba(255,255,255,.06);border-radius:3px;margin-top:.4vh;overflow:hidden}
+/* bars start at 0; JS drives them to real width after paint */
+.msf-bar{height:100%;border-radius:3px;width:0%;transition:width 1.1s cubic-bezier(.4,0,.2,1)}
+.msf-pts{font-family:'Black Ops One',cursive;font-size:clamp(1.6rem,4vw,3.8rem);text-align:right;flex-shrink:0}
+/* Score pop when it changes */
+@keyframes ptsChange{0%{transform:scale(1.5);color:#fff;filter:drop-shadow(0 0 20px #fff)}100%{transform:scale(1)}}
+.msf-pts.changed{animation:ptsChange .5s ease}
+
+/* ── TIMEOUT FLASH ── */
+@keyframes timeoutBurst{0%{opacity:0;transform:scale(.4)}12%{opacity:1;transform:scale(1.08)}25%{transform:scale(1)}75%{opacity:1}100%{opacity:0;transform:scale(1.05)}}
+.mon-timeout-flash{position:absolute;top:0;right:0;bottom:0;left:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,40,40,.06);pointer-events:none;animation:timeoutBurst 2.4s cubic-bezier(.4,0,.2,1) forwards}
+.mon-timeout-icon{font-size:clamp(4rem,14vw,11rem);animation:iconSpin .4s cubic-bezier(.175,.885,.32,1.275) both}
+@keyframes iconSpin{from{transform:rotate(-20deg) scale(.5)}to{transform:rotate(0) scale(1)}}
+.mon-timeout-txt{font-family:'Black Ops One',cursive;font-size:clamp(2rem,7vw,6rem);color:var(--red);letter-spacing:8px;filter:drop-shadow(0 0 40px rgba(255,60,60,.9));margin-top:.5vh;animation:timeoutTxt .35s .15s cubic-bezier(.175,.885,.32,1.275) both}
+@keyframes timeoutTxt{from{opacity:0;transform:translateY(20px) scale(.8)}to{opacity:1;transform:translateY(0) scale(1)}}
+/* Red border pulse during timeout */
+@keyframes redBorder{0%,100%{box-shadow:0 0 0 0 rgba(255,60,60,0) inset}50%{box-shadow:0 0 0 6px rgba(255,60,60,.35) inset}}
+.mon-timeout-flash::after{content:'';position:absolute;top:0;right:0;bottom:0;left:0;animation:redBorder 0.6s ease-in-out 3;pointer-events:none}
+
+/* ── SCORE STRIP (buzz mode bottom bar) ── */
+.mscores{display:flex;gap:1vw;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.06);padding-top:1vh;flex-shrink:0}
+.mspill{display:flex;align-items:center;gap:.8vw;padding:.5vh 1.2vw;border-radius:7px;background:var(--surf);flex:1;min-width:90px;transition:background .3s}
+.mspill.updated{animation:scoreStripFlash .6s ease}
+@keyframes scoreStripFlash{0%{background:rgba(255,215,0,.25)}100%{background:var(--surf)}}
+.msdot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.msteam{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.8rem,1.7vw,1.3rem);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mspts{font-family:'Black Ops One',cursive;font-size:clamp(.95rem,2vw,1.6rem)}
+
+/* ── FLOATING SCORE DELTA ── */
+.score-delta-pop{position:absolute;font-family:'Black Ops One',cursive;font-size:clamp(1.2rem,3vw,2.5rem);font-weight:900;pointer-events:none;z-index:80;animation:deltaFloat 1.4s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes deltaFloat{0%{opacity:0;transform:translateY(0) scale(.6)}15%{opacity:1;transform:translateY(-10px) scale(1.2)}70%{opacity:1;transform:translateY(-50px) scale(1)}100%{opacity:0;transform:translateY(-80px) scale(.8)}}
+
+/* ── GLOBAL SCORE TOAST ── */
+#score-toast{position:fixed;top:1.5rem;left:50%;transform:translateX(-50%) translateY(-140%);z-index:999;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:.15rem;background:rgba(10,10,25,.93);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:.65rem 1.6rem .55rem;box-shadow:0 8px 40px rgba(0,0,0,.6);transition:transform .32s cubic-bezier(.175,.885,.32,1.275),opacity .25s ease;opacity:0;min-width:180px;text-align:center}
+#score-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+#score-toast.hide{transform:translateX(-50%) translateY(-140%);opacity:0;transition:transform .25s ease,opacity .25s ease}
+.st-team{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:.82rem;letter-spacing:3px;text-transform:uppercase}
+.st-delta{font-family:'Black Ops One',cursive;font-size:1.9rem;line-height:1.1}
+.st-delta.pos{color:var(--green);text-shadow:0 0 20px rgba(0,255,136,.6)}
+.st-delta.neg{color:var(--red);text-shadow:0 0 20px rgba(255,60,60,.6)}
+
+/* ══ TIMEKEEPER MODULE CSS ══ */
+/* Landing button */
+.lbtn.timekeeper{background:rgba(0,255,255,.06);border:2px solid rgba(0,255,136,.3);color:var(--green)}
+.lbtn.timekeeper:hover{background:rgba(0,255,136,.13);transform:translateY(-2px)}
+
+/* Join screen */
+#timekeeper-join{align-items:center;justify-content:center;background:radial-gradient(ellipse 80% 60% at 50% 110%,#041a0e 0%,var(--bg) 60%)}
+
+/* Control screen */
+#timekeeper{background:radial-gradient(ellipse 100% 40% at 50% -5%,#051a10 0%,var(--bg) 65%);padding:.75rem;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;align-items:center}
+.tk-header{display:flex;align-items:flex-start;justify-content:space-between;width:100%;margin-bottom:.75rem;gap:.5rem;flex-wrap:wrap}
+.tk-title{font-family:'Black Ops One',cursive;font-size:1.3rem;color:var(--green);letter-spacing:2px}
+.tk-sub{font-family:'Barlow Condensed',sans-serif;font-size:.75rem;color:var(--muted);letter-spacing:2px;margin-top:.1rem}
+.tk-conn-badge{display:flex;align-items:center;gap:.4rem;font-family:'Barlow Condensed',sans-serif;font-size:.75rem;letter-spacing:2px;color:var(--muted);padding:.35rem .75rem;background:var(--surf);border-radius:20px;border:1px solid rgba(255,255,255,.06);margin-bottom:.65rem}
+
+/* Big countdown display on TK screen */
+.tk-countdown{font-family:'Black Ops One',cursive;font-size:clamp(5rem,22vw,9rem);line-height:1;text-align:center;margin:.5rem 0 1rem;transition:color .4s;filter:drop-shadow(0 0 30px currentColor)}
+.tk-countdown.green{color:var(--green)}
+.tk-countdown.amber{color:var(--gold)}
+.tk-countdown.red{color:var(--red);animation:tkPulse .5s ease-in-out infinite alternate}
+@keyframes tkPulse{from{transform:scale(1)}to{transform:scale(1.06)}}
+.tk-countdown.idle{color:var(--muted);filter:none}
+
+/* Preset buttons */
+.tk-presets{display:flex;gap:.75rem;margin-bottom:1rem;width:100%;max-width:420px}
+.tk-preset{flex:1;padding:1.1rem .5rem;border-radius:14px;border:3px solid transparent;font-family:'Black Ops One',cursive;font-size:1.6rem;letter-spacing:2px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
+.tk-preset.s5{background:rgba(255,60,60,.12);border-color:rgba(255,60,60,.35);color:var(--red)}
+.tk-preset.s5:hover,.tk-preset.s5.active{background:rgba(255,60,60,.3);border-color:var(--red);transform:translateY(-2px);box-shadow:0 6px 30px rgba(255,60,60,.4)}
+.tk-preset.s10{background:rgba(255,215,0,.1);border-color:rgba(255,215,0,.3);color:var(--gold)}
+.tk-preset.s10:hover,.tk-preset.s10.active{background:rgba(255,215,0,.25);border-color:var(--gold);transform:translateY(-2px);box-shadow:0 6px 30px rgba(255,215,0,.35)}
+.tk-preset.s15{background:rgba(0,255,136,.1);border-color:rgba(0,255,136,.3);color:var(--green)}
+.tk-preset.s15:hover,.tk-preset.s15.active{background:rgba(0,255,136,.22);border-color:var(--green);transform:translateY(-2px);box-shadow:0 6px 30px rgba(0,255,136,.35)}
+
+/* Control buttons */
+.tk-controls{display:flex;gap:.6rem;width:100%;max-width:420px;margin-bottom:.9rem}
+.tk-btn{flex:1;padding:.85rem .4rem;border-radius:11px;border:none;font-family:'Black Ops One',cursive;font-size:1rem;letter-spacing:1px;cursor:pointer;transition:all .15s}
+.tk-btn.start{background:linear-gradient(135deg,var(--green),#009955);color:#050f09;box-shadow:0 4px 20px rgba(0,255,136,.3)}
+.tk-btn.start:hover{transform:translateY(-1px);box-shadow:0 6px 30px rgba(0,255,136,.45)}
+.tk-btn.stop{background:linear-gradient(135deg,var(--red),#cc2200);color:#fff;box-shadow:0 4px 20px rgba(255,60,60,.3)}
+.tk-btn.stop:hover{transform:translateY(-1px)}
+.tk-btn.reset{background:var(--surf2);color:var(--muted);border:1px solid rgba(255,255,255,.1)}
+.tk-btn.reset:hover{color:var(--txt);border-color:rgba(255,255,255,.25)}
+.tk-btn.next{background:linear-gradient(135deg,var(--blue),#0077bb);color:#fff;box-shadow:0 4px 20px rgba(0,191,255,.25)}
+.tk-btn.next:hover{transform:translateY(-1px)}
+.tk-btn:active{transform:translateY(0)!important}
+.tk-btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important}
+
+/* Next-up indicator */
+.tk-next-up{font-family:'Barlow Condensed',sans-serif;font-size:.82rem;letter-spacing:2px;color:var(--muted);text-align:center;margin-bottom:.5rem}
+.tk-next-up span{color:var(--gold);font-weight:700}
+
+/* Status bar */
+.tk-status{font-family:'Barlow Condensed',sans-serif;font-size:1rem;letter-spacing:3px;color:var(--muted);text-align:center;margin-bottom:.5rem;min-height:1.4rem}
+.tk-status.running{color:var(--green)}
+.tk-status.expired{color:var(--red)}
+
+/* Host admin mini-section */
+.tk-admin-wrap{background:var(--surf);border:1px solid rgba(0,255,136,.18);border-radius:12px;padding:.75rem 1rem;margin-bottom:.75rem;display:flex;align-items:center;gap:1rem}
+.tk-admin-lbl{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;letter-spacing:3px;color:var(--green);text-transform:uppercase;flex-shrink:0}
+.tk-admin-display{font-family:'Black Ops One',cursive;font-size:2rem;color:var(--green);min-width:3.5rem;text-align:center;transition:color .3s}
+.tk-admin-display.amber{color:var(--gold)}
+.tk-admin-display.red{color:var(--red)}
+.tk-admin-display.idle{color:var(--muted)}
+.tk-admin-status{font-family:'Barlow Condensed',sans-serif;font-size:.78rem;letter-spacing:2px;color:var(--muted);flex:1}
+
+/* ══ MONITOR COUNTDOWN OVERLAY ══ */
+#mon-tk-overlay{
+  position:absolute;top:0;right:0;bottom:0;left:0;
+  z-index:90;/* above everything including QR overlay (40) and timeout flash (60) */
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(3,3,10,.97);
+  pointer-events:none;
+  opacity:0;transition:opacity .35s ease;
+}
+#mon-tk-overlay.active{opacity:1;pointer-events:all}
+#mon-tk-overlay.hidden{display:none;visibility:hidden}
+.tk-mon-label{font-family:'Barlow Condensed',sans-serif;font-size:clamp(1rem,2.5vw,1.8rem);letter-spacing:8px;color:var(--muted);text-transform:uppercase;margin-bottom:1vh}
+.tk-mon-num{font-family:'Black Ops One',cursive;font-size:clamp(8rem,28vw,22rem);line-height:.9;text-align:center;transition:color .4s}
+.tk-mon-num.green{color:var(--green);text-shadow:0 0 80px rgba(0,255,136,.5),0 0 160px rgba(0,255,136,.2)}
+.tk-mon-num.amber{color:var(--gold);text-shadow:0 0 80px rgba(255,215,0,.5),0 0 160px rgba(255,215,0,.2)}
+.tk-mon-num.red{color:var(--red);text-shadow:0 0 80px rgba(255,60,60,.7),0 0 160px rgba(255,60,60,.3);animation:tkMonPulse .45s ease-in-out infinite alternate}
+@keyframes tkMonPulse{from{transform:scale(1)}to{transform:scale(1.07);filter:drop-shadow(0 0 40px rgba(255,60,60,.9))}}
+.tk-mon-bar-wrap{width:min(70vw,600px);height:10px;background:rgba(255,255,255,.07);border-radius:5px;overflow:hidden;margin-top:3vh}
+.tk-mon-bar{height:100%;border-radius:5px;transition:width .1s linear,background .4s}
+/* TIME'S UP overlay */
+.tk-timesup{position:absolute;top:0;right:0;bottom:0;left:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;animation:tkBurst 3s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes tkBurst{0%{opacity:0;transform:scale(.3)}10%{opacity:1;transform:scale(1.12)}22%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+.tk-timesup-icon{font-size:clamp(5rem,16vw,13rem);animation:tkIconSpin .5s cubic-bezier(.175,.885,.32,1.275) both}
+@keyframes tkIconSpin{from{transform:rotate(-25deg) scale(.3)}to{transform:rotate(0) scale(1)}}
+.tk-timesup-txt{font-family:'Black Ops One',cursive;font-size:clamp(2.5rem,9vw,8rem);color:var(--red);letter-spacing:10px;filter:drop-shadow(0 0 60px rgba(255,60,60,1));animation:tkTxt .4s .2s cubic-bezier(.175,.885,.32,1.275) both;margin-top:1vh}
+@keyframes tkTxt{from{opacity:0;transform:translateY(30px) scale(.7)}to{opacity:1;transform:translateY(0) scale(1)}}
+.tk-timesup-sub{font-family:'Barlow Condensed',sans-serif;font-size:clamp(1rem,2.5vw,2rem);letter-spacing:6px;color:rgba(255,60,60,.6);margin-top:1vh;animation:tkTxt .4s .4s cubic-bezier(.175,.885,.32,1.275) both}
+/* Shockwave ring */
+@keyframes tkShock{0%{transform:scale(.5);opacity:.8}100%{transform:scale(3.5);opacity:0}}
+.tk-shockwave{position:absolute;width:200px;height:200px;border-radius:50%;border:6px solid var(--red);animation:tkShock 1.2s ease-out forwards}
+/* Screen flash on expire */
+@keyframes tkFlash{0%,100%{background:rgba(255,60,60,0)}15%{background:rgba(255,60,60,.35)}30%{background:rgba(255,60,60,0)}50%{background:rgba(255,60,60,.2)}65%{background:rgba(255,60,60,0)}}
+.tk-screen-flash{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none;animation:tkFlash 1.2s ease forwards}
+
+.mon-room{position:absolute;bottom:1.5vw;right:2vw;font-family:'Black Ops One',cursive;font-size:clamp(.75rem,1.5vw,1.1rem);color:rgba(255,215,0,.15);letter-spacing:4px;pointer-events:none}
+
+/* ── MONITOR QR OVERLAY ── */
+#mon-qr-overlay{
+  position:absolute;top:0;right:0;bottom:0;left:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(3,3,8,.88);/* solid — no backdrop-filter for TV compat */
+  z-index:40;transition:opacity .5s ease;
+}
+#mon-qr-overlay.hidden{opacity:0;pointer-events:none}
+#mon-qr-overlay.visible{opacity:1;pointer-events:none}/* overlay is display-only */
+.mqr-card{background:rgba(20,20,38,.9);border:1px solid rgba(255,215,0,.25);border-radius:20px;padding:2.5vw 3vw;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1.5vh;max-width:50vw}
+.mqr-title{font-family:'Black Ops One',cursive;font-size:clamp(1rem,2.5vw,2rem);color:var(--gold);letter-spacing:4px}
+.mqr-code{font-family:'Black Ops One',cursive;font-size:clamp(2rem,7vw,6rem);letter-spacing:14px;color:var(--gold);filter:drop-shadow(0 0 25px rgba(255,200,0,.6));background:var(--bg2);border:2px solid rgba(255,215,0,.3);border-radius:14px;padding:.3rem 1.5rem}
+.mqr-sub{font-family:'Barlow Condensed',sans-serif;font-size:clamp(.8rem,1.8vw,1.3rem);color:var(--muted);letter-spacing:3px}
+#mon-qr-img{border-radius:12px;overflow:hidden}
+
+/* ══ FIRST BUZZ OVERLAY ══ */
+#fbo{position:fixed;top:0;right:0;bottom:0;left:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+#fbo.show{opacity:1;pointer-events:all}
+#fbobg{position:absolute;top:0;right:0;bottom:0;left:0}
+/* Expanding ripple behind the name */
+#fbo.show::before{content:'';position:absolute;top:50%;left:50%;border-radius:50%;transform:translate(-50%,-50%);background:var(--fbcol,#FFD700);animation:fboRipple 1.1s cubic-bezier(.4,0,.2,1) forwards;z-index:1}
+@keyframes fboRipple{0%{width:0;height:0;opacity:.5}100%{width:280vmax;height:280vmax;opacity:0}}
+.fboc{position:relative;z-index:2;text-align:center}
+.fbolt{font-size:clamp(3rem,10vw,6rem);animation:boltIn .5s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes boltIn{from{transform:rotate(-30deg) scale(.3);opacity:0}to{transform:rotate(0) scale(1);opacity:1}}
+.flbl{font-family:'Barlow Condensed',sans-serif;font-size:clamp(1rem,3vw,1.6rem);letter-spacing:8px;color:rgba(255,255,255,.7);margin-bottom:.8rem;animation:fadeUp .4s .1s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.fname{font-family:'Black Ops One',cursive;font-size:clamp(3rem,12vw,8rem);color:#fff;text-shadow:0 0 80px rgba(255,255,255,.5);line-height:1.05;animation:fadeUp .45s .18s cubic-bezier(.175,.885,.32,1.275) both}
+.fteam{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(1.4rem,4.5vw,3rem);letter-spacing:3px;opacity:.9;animation:fadeUp .4s .3s ease both}
+.fbo-dismiss{margin-top:2rem;font-family:'Barlow Condensed',sans-serif;font-size:clamp(.8rem,1.5vw,1rem);letter-spacing:3px;color:rgba(255,255,255,.3);animation:fadein 1s 1.5s ease both}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+
+#confetti{position:fixed;top:0;right:0;bottom:0;left:0;pointer-events:none;z-index:200}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surf2);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:.6rem 1.3rem;font-family:'Barlow Condensed',sans-serif;font-size:.95rem;letter-spacing:1px;opacity:0;transition:all .3s;z-index:300;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── MODAL ── */
+.modal-backdrop{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(0,0,0,.85);z-index:400;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-backdrop.show{opacity:1;pointer-events:all}
+.modal{background:var(--surf);border:1px solid rgba(255,215,0,.2);border-radius:var(--r);padding:2rem;max-width:380px;width:90%;animation:mpop .35s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes mpop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h2{font-family:'Black Ops One',cursive;font-size:1.5rem;color:var(--gold);margin-bottom:1rem;letter-spacing:2px}
+.modal p{font-family:'Barlow',sans-serif;font-size:.9rem;color:var(--muted);line-height:1.6;margin-bottom:1.25rem}
+.modal-btns{display:flex;gap:.75rem;flex-wrap:wrap}
+.modal-btn{flex:1;padding:.75rem;border:none;border-radius:9px;font-family:'Barlow Condensed',sans-serif;font-size:1rem;letter-spacing:2px;font-weight:700;cursor:pointer;transition:all .2s}
+.modal-btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07070F}
+.modal-btn.secondary{background:var(--surf2);color:var(--muted);border:1px solid rgba(255,255,255,.1)}
+.modal-btn:hover{transform:translateY(-1px)}.modal-btn:active{transform:translateY(0)}
+
+@media(max-width:480px){
+  .inv-bottom{flex-direction:column}
+  .htop{flex-direction:column}
+  .topbtns{width:100%}.tb{flex:1;text-align:center;font-size:.78rem}
+  .mqr-card{max-width:85vw;padding:4vw}
+}
+
+/* ══ TV / LARGE SCREEN ══ */
+@media(min-width:960px){
+  .land-inner{max-width:540px}
+  .lbtn{font-size:1.35rem;padding:1.2rem 2rem}
+  .mqr-card{max-width:45vw;padding:3vw 4vw}
+  .mqr-code{font-size:clamp(3rem,8vw,7rem)}
+  .mon-st-row{padding:2vh 3vw}
+  .sk-card{padding:1.25rem}
+  .sk-btn{padding:.75rem .5rem;font-size:1rem}
+}
+
+/* ── TV REMOTE NAVIGATION (hover:none devices) ── */
+@media(hover:none){
+  .lbtn:hover{transform:none;box-shadow:none}
+  .tb:hover{border-color:rgba(255,255,255,.12);color:var(--txt)}
+  .mfsbtn:hover{border-color:rgba(255,255,255,.12);color:var(--muted)}
+  /* Use :focus-visible for TV D-pad focus ring */
+  button:focus-visible,.lbtn:focus-visible,.topt:focus-visible{
+    outline:3px solid var(--gold);outline-offset:3px;
+  }
+}
+
+/* ── SAFE GRADIENT TEXT (colour fallback for WebViews that block -webkit-text-fill-color) ── */
+.logo{color:#FFD700}/* fallback */
+.mlogo{color:var(--gold)}/* fallback */
+.sb-logo{color:var(--gold)}/* fallback */
+
+/* ── PREVENT SELECTION GLOW ON TV ── */
+*{-webkit-tap-highlight-color:transparent;-webkit-user-drag:none}
+
+/* ══ NEW LANDING BUTTONS ══ */
+.lbtn.scoreboard{background:rgba(255,200,0,.07);border:2px solid rgba(255,200,0,.3);color:var(--gold)}
+.lbtn.scoreboard:hover{background:rgba(255,200,0,.14);transform:translateY(-2px)}
+.lbtn.scorekeeper{background:rgba(0,255,255,.06);border:2px solid rgba(0,255,255,.25);color:#00FFFF}
+.lbtn.scorekeeper:hover{background:rgba(0,255,255,.13);transform:translateY(-2px)}
+
+/* ══ DOLLAR MODE SETUP ══ */
+.dollar-config{background:var(--bg2);border:1px solid rgba(255,215,0,.15);border-radius:10px;padding:.85rem 1rem;margin-top:.75rem}
+.dollar-config-title{font-family:'Barlow Condensed',sans-serif;font-size:.8rem;letter-spacing:3px;color:var(--gold);margin-bottom:.6rem;text-transform:uppercase}
+.dollar-presets{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.5rem}
+.dpreset{padding:.28rem .6rem;border-radius:6px;border:1px solid rgba(255,215,0,.2);background:none;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:.82rem;cursor:pointer;transition:all .15s}
+.dpreset:hover,.dpreset.sel{border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,.08)}
+.dollar-custom{display:flex;align-items:center;gap:.5rem;margin-top:.4rem}
+.dollar-input{width:90px;padding:.38rem .6rem;background:var(--surf);border:1px solid rgba(255,215,0,.25);border-radius:7px;color:var(--gold);font-family:'Black Ops One',cursive;font-size:.95rem;outline:none;text-align:center}
+.dollar-input:focus{border-color:var(--gold)}
+.dollar-preview{font-family:'Barlow Condensed',sans-serif;font-size:.78rem;color:var(--muted);margin-top:.4rem;line-height:1.7}
+
+/* ══ SCOREBOARD SCREEN ══ */
+#scoreboard{background:radial-gradient(ellipse 100% 60% at 50% 0%,#0a0a20 0%,#030308 70%);padding:0;overflow:hidden;position:relative;justify-content:flex-start}
+.sb-header{display:flex;align-items:center;justify-content:space-between;padding:1.5vh 2vw;flex-shrink:0;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,215,0,.08)}
+.sb-logo{font-family:'Black Ops One',cursive;font-size:clamp(1rem,2.5vw,1.8rem);background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px}
+.sb-btns{display:flex;gap:.5rem}
+.sb-body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:2vh 3vw;gap:1.2vh;overflow:hidden}
+.sb-row{display:flex;align-items:center;gap:2vw;padding:1.8vh 2.5vw;border-radius:14px;background:var(--surf);border-left:8px solid transparent;transition:background .4s,border-left-color .4s}
+/* Initial entrance animation — each row slides in with stagger */
+.sb-row.sb-anim{animation:sbr .55s cubic-bezier(.175,.885,.32,1.275) both}
+@keyframes sbr{from{opacity:0;transform:translateX(-40px) scale(.96)}to{opacity:1;transform:translateX(0) scale(1)}}
+.sb-row.sb-first{background:linear-gradient(135deg,rgba(255,215,0,.12),var(--surf));animation:sbr .55s cubic-bezier(.175,.885,.32,1.275) both, sbGold 4s 0.6s ease-in-out infinite}
+@keyframes sbGold{0%,100%{box-shadow:0 0 20px rgba(255,200,0,.05)}50%{box-shadow:0 0 70px rgba(255,200,0,.22),inset 0 0 40px rgba(255,200,0,.04)}}
+.sb-rank{font-family:'Black Ops One',cursive;font-size:clamp(1.8rem,4vw,3.5rem);min-width:4vw;text-align:center;line-height:1;transition:color .4s}
+.sb-rank.r1{color:var(--gold);filter:drop-shadow(0 0 14px rgba(255,200,0,.9))}.sb-rank.r2{color:#C0C0C0}.sb-rank.r3{color:#CD7F32}.sb-rank.rn{color:var(--muted);font-size:clamp(1rem,2vw,1.8rem)}
+.sb-info{flex:1;min-width:0}
+.sb-name{font-family:'Black Ops One',cursive;font-size:clamp(1.3rem,3.5vw,3rem);letter-spacing:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-bar-wrap{height:7px;background:rgba(255,255,255,.06);border-radius:3px;margin-top:.5vh;overflow:hidden}
+/* bars start at 0; JS animates to real width */
+.sb-bar{height:100%;border-radius:3px;width:0%;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.sb-score{font-family:'Black Ops One',cursive;font-size:clamp(1.8rem,5vw,4.5rem);text-align:right;letter-spacing:1px;transition:color .4s;position:relative}
+/* Score change flash */
+@keyframes sbScoreFlash{0%{transform:scale(1.4);filter:drop-shadow(0 0 30px #fff)}40%{filter:drop-shadow(0 0 15px rgba(255,200,0,.8))}100%{transform:scale(1);filter:drop-shadow(0 0 8px rgba(255,200,0,.3))}}
+.sb-score.score-pop{animation:sbScoreFlash .6s cubic-bezier(.175,.885,.32,1.275)}
+/* Rank up badge */
+@keyframes rankUpIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.rank-up-badge{display:inline-block;font-size:.5em;color:var(--green);vertical-align:middle;margin-left:.3em;animation:rankUpIn .35s ease}
+
+/* ══ SCOREKEEPER SCREEN ══ */
+#scorekeeper-join,#scoreboard-join{align-items:center;justify-content:center;background:radial-gradient(ellipse 80% 60% at 50% 110%,#0d1020 0%,var(--bg) 60%)}
+#scorekeeper{background:radial-gradient(ellipse 100% 40% at 50% -5%,#061520 0%,var(--bg) 65%);padding:.75rem;overflow-y:auto;overflow-x:hidden}
+.sk-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem;gap:.5rem;flex-wrap:wrap}
+.sk-title{font-family:'Black Ops One',cursive;font-size:1.2rem;color:#00FFFF;letter-spacing:2px}
+.sk-sub{font-family:'Barlow Condensed',sans-serif;font-size:.75rem;color:var(--muted);letter-spacing:2px;margin-top:.1rem}
+.sk-dollar-toggle{display:flex;align-items:center;gap:.5rem;margin-bottom:.65rem;padding:.5rem .75rem;background:var(--surf);border-radius:9px;border:1px solid rgba(0,255,255,.12)}
+.sk-dollar-label{font-family:'Barlow Condensed',sans-serif;font-size:.82rem;letter-spacing:2px;color:var(--muted);flex:1}
+.sk-dollar-val{font-family:'Black Ops One',cursive;font-size:.95rem;color:var(--gold)}
+.sk-teams{display:flex;flex-direction:column;gap:.6rem;padding-bottom:1rem}
+.sk-card{background:var(--surf);border-radius:12px;padding:.85rem;border:2px solid rgba(255,255,255,.05)}
+.sk-card-top{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}
+.sk-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.sk-tname{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1rem;letter-spacing:1px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sk-score-display{font-family:'Black Ops One',cursive;font-size:1.6rem;text-align:right;flex-shrink:0;filter:drop-shadow(0 0 8px rgba(255,200,0,.35))}
+/* Button grid: max 4 cols for add, 4 for sub */
+.sk-btns{display:flex;flex-direction:column;gap:.3rem}
+.sk-btn-row{display:grid;gap:.3rem}
+.sk-btn{padding:.5rem .3rem;border-radius:8px;border:none;font-family:'Black Ops One',cursive;font-size:.78rem;letter-spacing:.5px;cursor:pointer;transition:all .15s;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sk-btn.add{background:rgba(0,255,136,.12);color:var(--green);border:1px solid rgba(0,255,136,.2)}
+.sk-btn.add:hover{background:rgba(0,255,136,.25)}
+.sk-btn.sub{background:rgba(255,60,60,.1);color:var(--red);border:1px solid rgba(255,60,60,.18)}
+.sk-btn.sub:hover{background:rgba(255,60,60,.22)}
+.sk-btn.zero{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid rgba(255,255,255,.08);font-size:.72rem;letter-spacing:0;width:100%}
+.sk-btn.zero:hover{background:rgba(255,255,255,.1);color:var(--txt)}
+.sk-conn-badge{display:flex;align-items:center;gap:.4rem;font-family:'Barlow Condensed',sans-serif;font-size:.75rem;letter-spacing:2px;color:var(--muted);padding:.35rem .75rem;background:var(--surf);border-radius:20px;border:1px solid rgba(255,255,255,.06);margin-bottom:.65rem;flex-wrap:wrap}
+
+/* ══ MONITOR IN-GAME STANDINGS OVERLAY ══ */
+.mon-standings-overlay{width:88vw;max-width:960px}
+.mon-standings-title{font-family:'Black Ops One',cursive;font-size:clamp(1rem,2.2vw,1.6rem);color:var(--gold);letter-spacing:5px;text-align:center;margin-bottom:2vh}
+.mon-st-row{display:flex;align-items:center;gap:2vw;padding:1.4vh 2.5vw;border-radius:12px;background:rgba(20,20,38,.9);border-left:6px solid transparent;margin-bottom:1vh}
+.mon-st-row.first{background:rgba(255,215,0,.08);border-color:var(--gold)}
+.mon-st-rank{font-family:'Black Ops One',cursive;font-size:clamp(1.5rem,3.5vw,3rem);min-width:3.5vw;text-align:center;color:var(--muted)}
+.mon-st-rank.r1{color:var(--gold)}.mon-st-rank.r2{color:#C0C0C0}.mon-st-rank.r3{color:#CD7F32}
+.mon-st-name{font-family:'Black Ops One',cursive;font-size:clamp(1.2rem,3vw,2.5rem);flex:1;letter-spacing:2px}
+.mon-st-pts{font-family:'Black Ops One',cursive;font-size:clamp(1.5rem,4vw,3.5rem);text-align:right}
+.mon-st-bar{height:5px;border-radius:3px;margin-top:.4vh}
+
+/* ══ SCOREBOARD CONFETTI CANVAS ══ */
+#sb-confetti{position:fixed;top:0;right:0;bottom:0;left:0;pointer-events:none;z-index:500}
+
+
+/* ══ PRE-UNLOCK COUNTDOWN OVERLAY ══ */
+#cd-overlay{
+  position:fixed;top:0;right:0;bottom:0;left:0;z-index:90;
+  background:radial-gradient(ellipse 80% 70% at 50% 50%,rgba(14,14,32,.97),rgba(7,7,15,.995));
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .3s ease;
+}
+#cd-overlay.active{opacity:1;pointer-events:all;}
+.cd-lbl{
+  font-family:'Barlow Condensed',sans-serif;font-size:clamp(.95rem,2.8vw,1.8rem);
+  letter-spacing:8px;color:var(--muted);text-transform:uppercase;
+  margin-bottom:1.5vh;animation:cdLblPulse 1.1s ease-in-out infinite alternate;
+}
+@keyframes cdLblPulse{from{opacity:.4}to{opacity:.9}}
+.cd-num{
+  font-family:'Black Ops One',cursive;
+  font-size:clamp(9rem,36vw,21rem);
+  line-height:.95;text-align:center;color:var(--gold);
+  filter:drop-shadow(0 0 70px rgba(255,200,0,.65));
+}
+.cd-num.warn{color:var(--red);filter:drop-shadow(0 0 80px rgba(255,60,60,.9));}
+.cd-num.go{color:var(--green);filter:drop-shadow(0 0 90px rgba(0,255,136,1));}
+@keyframes cdPop{0%{transform:scale(1.55);opacity:.25;}100%{transform:scale(1);opacity:1;}}
+.cd-num.pop{animation:cdPop .38s cubic-bezier(.175,.885,.32,1.275) both;}
+.cd-sub{
+  font-family:'Barlow Condensed',sans-serif;font-size:clamp(.85rem,2.2vw,1.5rem);
+  letter-spacing:5px;color:var(--muted);margin-top:2vh;text-transform:uppercase;min-height:2rem;
+}
+.cd-sub.go{color:var(--green);font-size:clamp(1.1rem,3vw,2rem);letter-spacing:8px;
+  animation:cdSubPop .35s cubic-bezier(.175,.885,.32,1.275) both;}
+@keyframes cdSubPop{from{opacity:0;transform:translateY(18px) scale(.8)}to{opacity:1;transform:none}}
+/* Expanding ring on each beat */
+.cd-ring-wrap{position:absolute;display:flex;align-items:center;justify-content:center;width:100%;height:100%;pointer-events:none;}
+@keyframes cdRing{0%{transform:scale(.5);opacity:.7;}100%{transform:scale(2.5);opacity:0;}}
+.cd-ring{
+  width:min(45vw,280px);height:min(45vw,280px);border-radius:50%;
+  border:5px solid var(--gold);
+}
+.cd-ring.warn{border-color:var(--red);}
+.cd-ring.go{border-color:var(--green);}
+.cd-ring.pulse{animation:cdRing .55s ease-out forwards;}
+/* Cancel btn — only rendered visible for the host */
+.cd-cancel{
+  margin-top:5vh;padding:.45rem 1.4rem;border:1px solid rgba(255,255,255,.14);
+  border-radius:8px;background:none;color:var(--muted);
+  font-family:'Barlow Condensed',sans-serif;font-size:.9rem;letter-spacing:2px;
+  cursor:pointer;transition:all .2s;visibility:hidden;
+}
+.cd-cancel.show{visibility:visible;}
+.cd-cancel:hover{border-color:var(--red);color:var(--red);}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<canvas id="sb-confetti"></canvas>
+
+<!-- ══ LANDING ══ -->
+<div id="landing" class="screen active">
+  <div class="land-inner">
+    <div class="logo">⚡ BUZZER</div>
+    <div class="logo-sub">GAME SHOW SHOWDOWN</div>
+    <div class="land-btns">
+      <button class="lbtn host" onclick="showScreen('setup')">🎮 HOST A GAME</button>
+      <button class="lbtn player" onclick="entryMode='player';showScreen('player')">📱 JOIN AS PLAYER</button>
+      <button class="lbtn monitor" onclick="entryMode='monitor';showScreen('monitor-join')">📺 JOIN AS MONITOR</button>
+      <button class="lbtn scoreboard" onclick="entryMode='scoreboard';showScreen('scoreboard-join')">📊 JOIN AS SCOREBOARD</button>
+      <button class="lbtn scorekeeper" onclick="entryMode='scorekeeper';showScreen('scorekeeper-join')">🎯 JOIN AS SCOREKEEPER</button>
+      <button class="lbtn timekeeper" onclick="entryMode='timekeeper';showScreen('timekeeper-join')">⏱ JOIN AS TIMEKEEPER</button>
+      <button class="lbtn recover" id="recover-btn" style="display:none" onclick="tryRecover()">🔄 REJOIN MY GAME</button>
+      <button class="lbtn recover" id="rejoin-host-btn" onclick="showScreen('rejoin-host')" style="background:rgba(255,140,0,.07);border-color:rgba(255,140,0,.3);color:#FF9500">🔑 REJOIN AS HOST</button>
+    </div>
+    <div class="land-version">BUZZER SHOWDOWN v4.0 &nbsp;·&nbsp; P2P &nbsp;·&nbsp; TV READY</div>
+  </div>
+</div>
+
+<!-- ══ SETUP ══ -->
+<div id="setup" class="screen">
+  <div style="align-items:center;display:flex;flex-direction:column;padding:2rem 1rem 2rem;width:100%;background:radial-gradient(ellipse 80% 50% at 50% -10%,#1a0e4a 0%,var(--bg) 70%);min-height:100vh">
+  <div class="card">
+    <div class="card-title">🏆 Teams <button class="back-btn" onclick="showScreen('landing')">← Back</button></div>
+    <div class="team-rows" id="team-rows"></div>
+    <button class="addbtn" onclick="addTeam()">+ ADD TEAM</button>
+    <div class="divider"></div>
+    <div class="card-title" style="margin-bottom:.85rem">⚙ Options</div>
+    <div class="opts">
+      <label class="otog"><input type="checkbox" id="o-sound" checked><div class="tv"></div><span class="olbl">Sound</span></label>
+      <label class="otog"><input type="checkbox" id="o-flash" checked><div class="tv"></div><span class="olbl">Flash</span></label>
+      <label class="otog"><input type="checkbox" id="o-confetti" checked><div class="tv"></div><span class="olbl">Confetti</span></label>
+      <label class="otog"><input type="checkbox" id="o-dollar" onchange="onDollarToggle(this.checked)"><div class="tv"></div><span class="olbl">💰 Dollar Mode</span></label>
+    </div>
+    <div id="dollar-config" class="dollar-config" style="display:none">
+      <div class="dollar-config-title">💵 Base Dollar Value Per Point</div>
+      <div class="dollar-presets">
+        <button class="dpreset sel" onclick="setPointValue(100,this)">$100</button>
+        <button class="dpreset" onclick="setPointValue(200,this)">$200</button>
+        <button class="dpreset" onclick="setPointValue(400,this)">$400</button>
+        <button class="dpreset" onclick="setPointValue(500,this)">$500</button>
+        <button class="dpreset" onclick="setPointValue(1000,this)">$1000</button>
+      </div>
+      <div class="dollar-custom">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:.82rem;color:var(--muted);letter-spacing:2px">CUSTOM $</span>
+        <input class="dollar-input" id="point-value-input" type="number" value="100" min="1" step="1" oninput="setPointValue(parseInt(this.value)||100,null)">
+      </div>
+      <div class="dollar-preview" id="dollar-preview">Increments: $100 · $200 · $300 · $400 · $500</div>
+    </div>
+    <!-- Buzz Linger Delay Config -->
+    <div style="margin-top:.85rem;background:var(--bg2);border:1px solid rgba(0,191,255,.15);border-radius:9px;padding:.75rem 1rem">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:.82rem;letter-spacing:3px;color:var(--blue);text-transform:uppercase;margin-bottom:.55rem">⏳ Buzz Results Linger After Timer</div>
+      <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+        <div style="display:flex;gap:.35rem">
+          <button class="tpreset" onclick="setBuzzLinger(0,this)">None</button>
+          <button class="tpreset" onclick="setBuzzLinger(3,this)">3s</button>
+          <button class="tpreset sel-linger" onclick="setBuzzLinger(5,this)">5s</button>
+          <button class="tpreset" onclick="setBuzzLinger(10,this)">10s</button>
+          <button class="tpreset" onclick="setBuzzLinger(15,this)">15s</button>
+          <button class="tpreset" onclick="setBuzzLinger(30,this)">30s</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:.4rem">
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:.78rem;color:var(--muted);letter-spacing:2px">CUSTOM</span>
+          <input id="o-buzz-linger" type="number" min="0" max="300" step="1" value="5"
+            style="width:58px;background:var(--surf);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:.3rem .5rem;color:var(--txt);font-family:'Black Ops One',cursive;font-size:.9rem;text-align:center;outline:none"
+            oninput="G.buzzLingerSecs=parseInt(this.value)||0">
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:.78rem;color:var(--muted)">sec</span>
+        </div>
+      </div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:.75rem;color:var(--muted);margin-top:.45rem;letter-spacing:.5px;line-height:1.5">
+        Buzz results stay visible on screen for this many seconds after the timer expires, then standings are shown.
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="statusline" id="setup-status"></div>
+    <button class="startbtn" id="startbtn" onclick="startGame()">▶ START GAME</button>
+  </div>
+  </div>
+</div>
+
+<!-- ══ HOST ══ -->
+<div id="host" class="screen">
+  <div class="htop">
+    <div>
+      <div class="htitle">⚡ HOST CONTROL</div>
+      <div class="hsub">Q <span id="q-num">1</span> &nbsp;·&nbsp; <span id="player-count">0</span> players &nbsp;·&nbsp; <span id="host-conn-status">🟢 Live</span></div>
+    </div>
+    <div class="topbtns">
+      <button class="tb purple" onclick="openMonitorView()">📺 Monitor</button>
+      <button class="tb" onclick="showScreen('setup')">⚙ Setup</button>
+      <button class="tb red" onclick="endGame()">✕ End</button>
+    </div>
+  </div>
+
+  <!-- INVITE -->
+  <div class="invbox">
+    <div class="rc-hero">
+      <div class="rc-label">Room Code</div>
+      <div class="rc-code" id="room-code-disp">----</div>
+      <div class="rc-instruction">Share the links below for each role</div>
+    </div>
+
+    <!-- Role Links Table -->
+    <div id="role-links" style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:.85rem">
+      <div class="role-link-row" id="rl-player">
+        <span class="rl-icon">📱</span>
+        <span class="rl-label">PLAYER</span>
+        <span class="rl-url" id="rl-player-url">—</span>
+        <button class="rl-copy" onclick="copyRoleLink('player')">📋</button>
+        <button class="rl-share" onclick="shareRoleLink('player')">↗</button>
+      </div>
+      <div class="role-link-row" id="rl-monitor">
+        <span class="rl-icon">📺</span>
+        <span class="rl-label">MONITOR</span>
+        <span class="rl-url" id="rl-monitor-url">—</span>
+        <button class="rl-copy" onclick="copyRoleLink('monitor')">📋</button>
+        <button class="rl-share" onclick="shareRoleLink('monitor')">↗</button>
+      </div>
+      <div class="role-link-row" id="rl-scoreboard">
+        <span class="rl-icon">📊</span>
+        <span class="rl-label">SCOREBOARD</span>
+        <span class="rl-url" id="rl-scoreboard-url">—</span>
+        <button class="rl-copy" onclick="copyRoleLink('scoreboard')">📋</button>
+        <button class="rl-share" onclick="shareRoleLink('scoreboard')">↗</button>
+      </div>
+      <div class="role-link-row" id="rl-scorekeeper">
+        <span class="rl-icon">🎯</span>
+        <span class="rl-label">SCOREKEEPER</span>
+        <span class="rl-url" id="rl-scorekeeper-url">—</span>
+        <button class="rl-copy" onclick="copyRoleLink('scorekeeper')">📋</button>
+        <button class="rl-share" onclick="shareRoleLink('scorekeeper')">↗</button>
+      </div>
+      <div class="role-link-row" id="rl-timekeeper">
+        <span class="rl-icon">⏱</span>
+        <span class="rl-label">TIMEKEEPER</span>
+        <span class="rl-url" id="rl-timekeeper-url">—</span>
+        <button class="rl-copy" onclick="copyRoleLink('timekeeper')">📋</button>
+        <button class="rl-share" onclick="shareRoleLink('timekeeper')">↗</button>
+      </div>
+    </div>
+
+    <!-- Player QR -->
+    <div class="inv-divider">PLAYER QR CODE</div>
+    <div class="inv-bottom">
+      <div class="inv-qr-wrap">
+        <img id="qr-code" src="" alt="Player QR" width="90" height="90"
+          style="border-radius:8px;background:#141426;display:block">
+        <div class="inv-qr-label">Scan → Player</div>
+      </div>
+      <div class="inv-right">
+        <div class="inv-lbl">Quick Share</div>
+        <div class="inv-note">
+          Each link opens directly to that role — no menu navigation needed.<br>
+          Share the <strong>Monitor</strong> link to your TV. Share <strong>Scorekeeper</strong> to your score operator.
+        </div>
+        <div class="inv-btns">
+          <button class="copybtn" onclick="copyAllLinks()">📋 Copy All Links</button>
+          <button class="sharebtn" onclick="shareLink()">↗ Share Player</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MINI TIMEKEEPER DISPLAY -->
+  <div class="tk-mini-wrap" id="tk-mini-wrap" style="display:none">
+    <div>
+      <div class="tk-mini-label">⏱ TIMEKEEPER</div>
+      <div class="tk-mini-state" id="tk-mini-state" style="color:var(--muted)">Idle</div>
+    </div>
+    <div class="tk-mini-num" id="tk-mini-num" style="color:var(--gold)">—</div>
+  </div>
+
+  <!-- QUESTION TIMER -->
+  <div class="qtimer-wrap">
+    <div class="qtimer-lbl">⏱ Timer</div>
+    <div class="qtimer-display" id="qtimer-display">--</div>
+    <div class="timer-presets">
+      <button class="tpreset" onclick="setTimer(10)">10s</button>
+      <button class="tpreset" onclick="setTimer(15)">15s</button>
+      <button class="tpreset" onclick="setTimer(30)">30s</button>
+      <button class="tpreset" onclick="setTimer(60)">60s</button>
+    </div>
+    <button class="timer-btn" id="timer-toggle-btn" onclick="toggleTimer()">Start</button>
+    <button class="timer-btn" onclick="resetTimer()">Reset</button>
+  </div>
+
+  <!-- Players -->
+  <div class="ptitle" style="margin-bottom:.45rem">Players (<span id="player-count2">0</span>)</div>
+  <div class="pjoined" id="pjoined"><span style="color:var(--muted);font-size:.82rem;font-style:italic">Nobody yet — share the room code!</span></div>
+
+  <!-- Buzz order -->
+  <div class="bpanel">
+    <div class="ptitle">🔔 Buzz Order</div>
+    <div class="blist" id="blist"><div class="empty">Waiting for buzzers…</div></div>
+  </div>
+
+  <!-- Timekeeper mini-display -->
+  <div class="tk-admin-wrap" id="tk-admin-wrap" style="display:none">
+    <div class="tk-admin-lbl">⏱ TIMER</div>
+    <div class="tk-admin-display idle" id="tk-admin-display">--</div>
+    <div class="tk-admin-status" id="tk-admin-status">No timekeeper connected</div>
+  </div>
+
+  <!-- Actions -->
+  <div class="hactions">
+    <button class="habtn unlock" onclick="startUnlockCountdown()">🟢 UNLOCK</button>
+    <button class="habtn reset" onclick="cancelCountdown();hostReset()">🔁 RESET</button>
+    <button class="habtn next" onclick="cancelCountdown();hostNext()">⏭ NEXT Q</button>
+  </div>
+  <div class="sgrid" id="sgrid"></div>
+  <div style="height:1rem"></div>
+</div>
+
+<!-- ══ PLAYER ══ -->
+<div id="player" class="screen">
+  <div class="jwrap" id="jform">
+    <div class="jlogo">⚡ BUZZER</div>
+    <div class="rc-entry-label">ENTER ROOM CODE</div>
+    <input class="biginput" id="rc-input" maxlength="4" placeholder="XXXX" autocomplete="off" autocorrect="off" spellcheck="false"
+      oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');onCodeInput(this.value)">
+    <input class="nameinput" id="pname-input" maxlength="22" placeholder="Your Name" autocomplete="off">
+    <div class="team-section-label">SELECT YOUR TEAM</div>
+    <div class="tgrid" id="tgrid"><div class="tgrid-ph">Type the room code above to load teams</div></div>
+    <div class="errmsg" id="jerr"></div>
+    <button class="joinbtn" id="joinbtn" onclick="joinGame()">JOIN GAME</button>
+    <button class="back-btn" onclick="showScreen('landing')" style="margin-top:.5rem">← Back to menu</button>
+  </div>
+  <div class="buzzfull" id="bview" style="display:none">
+    <div class="pvname" id="pv-name"></div>
+    <div class="pvteam" id="pv-team"></div>
+    <div class="pv-score-wrap">
+      <div class="pv-score-lbl">TEAM SCORE</div>
+      <div class="pv-score-val" id="pv-score">—</div>
+    </div>
+    <button class="buzzbtn" id="buzzbtn" onclick="doBuzz()">
+      <div class="bzicon">⚡</div>
+      <div class="bzlbl">BUZZ!</div>
+    </button>
+    <div class="pcount-wrap" id="pcount-wrap" style="display:none">
+      <div class="pcount-bar" id="pcount-bar" style="width:100%"></div>
+    </div>
+    <div class="bzstatus" id="bzstatus">Connecting…</div>
+    <div class="conn-badge"><div class="cdot" id="p-cdot"></div><span id="p-conn-txt">Connecting…</span></div>
+  </div>
+</div>
+
+<!-- ══ MONITOR JOIN ══ -->
+<div id="monitor-join" class="screen">
+  <div class="jwrap">
+    <div class="jlogo" style="color:var(--purple)">📺 MONITOR</div>
+    <div class="rc-entry-label">ENTER ROOM CODE</div>
+    <input class="biginput" id="mj-rc-input" maxlength="4" placeholder="XXXX" autocomplete="off"
+      style="border-color:rgba(187,68,255,.3);color:var(--purple);caret-color:var(--purple)"
+      oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+    <div class="errmsg" id="mj-err"></div>
+    <button class="joinbtn" id="mj-joinbtn" onclick="joinAsMonitor()"
+      style="background:linear-gradient(135deg,var(--purple),#7700CC)">📺 CONNECT MONITOR</button>
+    <button class="back-btn" onclick="showScreen('landing')" style="margin-top:.5rem">← Back</button>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.8rem;color:var(--muted);text-align:center;letter-spacing:1px;line-height:1.6">
+      Monitor-only view for TVs &amp; displays.<br>Shows buzz results and scores. No host controls.
+    </div>
+  </div>
+</div>
+
+<!-- ══ MONITOR ══ -->
+<div id="monitor" class="screen">
+  <div class="scanlines"></div>
+
+  <!-- Timekeeper Countdown Overlay — highest z-index, above everything -->
+  <div id="mon-tk-overlay" class="hidden" style="display:none">
+    <div class="tk-mon-label" id="tk-mon-label"></div>
+    <div class="tk-mon-num" id="tk-mon-num"></div>
+    <div class="tk-mon-bar-wrap"><div class="tk-mon-bar" id="tk-mon-bar" style="width:0%;background:var(--green)"></div></div>
+  </div>
+
+  <!-- QR / Standings Overlay -->
+  <div id="mon-qr-overlay" class="hidden">
+    <!-- Pre-game: show QR to join -->
+    <div id="mon-overlay-pregame" class="mqr-card">
+      <div class="mqr-title">⚡ JOIN THE GAME</div>
+      <!-- QR via API — works on ALL devices including Android TV (no canvas needed) -->
+      <img id="mon-qr-img" src="" alt="QR Code" width="160" height="160"
+        style="border-radius:12px;background:#0E0E1C;display:block">
+      <div class="mqr-code" id="mon-qr-code-text">----</div>
+      <div class="mqr-sub">ENTER CODE TO PLAY</div>
+    </div>
+    <!-- In-game: show standings -->
+    <div id="mon-overlay-ingame" class="mon-standings-overlay" style="display:none">
+      <div class="mon-standings-title">📊 CURRENT STANDINGS</div>
+      <div id="mon-standings-rows"></div>
+    </div>
+  </div>
+
+  <div class="mhdr">
+    <div class="mlogo">⚡ BRIGHTSTAR CELEBRATES INTERNATIONAL WOMEN'S DAY (JEOPARDY SHOWDOWN 2026)</div>
+    <div class="mhdr-right">
+      <div class="mon-timer" id="mon-timer" style="display:none">--</div>
+      <div class="mqnum">Q <span id="mon-q">1</span></div>
+      <div class="mbadge locked" id="mon-badge">LOCKED</div>
+      <button class="mfsbtn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+    </div>
+  </div>
+
+  <div class="mbuzz" id="mon-buzz">
+    <div class="mempty"><div class="mwicon">🔒</div><div class="mwtxt">BUZZERS LOCKED</div></div>
+  </div>
+  <div class="mscores" id="mon-scores"></div>
+  <div class="mon-room" id="mon-room"></div>
+</div>
+
+<!-- First Buzz Overlay -->
+<div id="fbo">
+  <div id="fbobg"></div>
+  <div class="fboc">
+    <div class="fbolt">⚡</div>
+    <div class="flbl">FIRST BUZZ!</div>
+    <div class="fname" id="fbo-name"></div>
+    <div class="fteam" id="fbo-team"></div>
+    <div class="fbo-dismiss">TAP TO DISMISS</div>
+  </div>
+</div>
+
+
+<!-- ══ PRE-UNLOCK COUNTDOWN OVERLAY ══ -->
+<div id="cd-overlay">
+  <div class="cd-ring-wrap"><div class="cd-ring" id="cd-ring"></div></div>
+  <div class="cd-lbl" id="cd-lbl">BUZZERS OPEN IN</div>
+  <div class="cd-num" id="cd-num">5</div>
+  <div class="cd-sub" id="cd-sub">GET READY…</div>
+  <button class="cd-cancel" id="cd-cancel" onclick="cancelCountdown()">✕ CANCEL</button>
+</div>
+<!-- Recovery Modal -->
+<div class="modal-backdrop" id="recover-modal">
+  <div class="modal">
+    <h2>🔄 Rejoin Game?</h2>
+    <p>A saved game session was found.<br>Room Code: <strong id="recover-code" style="color:var(--gold);letter-spacing:4px;font-family:'Black Ops One',cursive"></strong><br><br>Would you like to rejoin as host?</p>
+    <div class="modal-btns">
+      <button class="modal-btn primary" onclick="doRecover()">✓ Rejoin</button>
+      <button class="modal-btn secondary" onclick="dismissRecover()">✕ New Game</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REJOIN HOST SCREEN ══ -->
+<div id="rejoin-host" class="screen">
+  <div class="jwrap">
+    <div class="jlogo" style="color:#FF9500">🔑 REJOIN AS HOST</div>
+    <div class="rc-entry-label">ENTER YOUR ROOM CODE</div>
+    <input class="biginput" id="rh-rc-input" maxlength="4" placeholder="XXXX" autocomplete="off"
+      style="border-color:rgba(255,140,0,.4);color:#FF9500;caret-color:#FF9500"
+      oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+    <div class="errmsg" id="rh-err"></div>
+    <button class="joinbtn" id="rh-joinbtn" onclick="rejoinAsHost()"
+      style="background:linear-gradient(135deg,#FF9500,#FF6000)">🔑 RECONNECT AS HOST</button>
+    <button class="back-btn" onclick="showScreen('landing')" style="margin-top:.5rem">← Back</button>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.8rem;color:var(--muted);text-align:center;letter-spacing:1px;line-height:1.6;margin-top:.5rem">
+      If your host session was interrupted, enter the room code to reclaim it.<br>
+      Scores and settings will be restored from your saved session if available.
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="score-toast"><div class="st-team" id="st-team"></div><div class="st-delta" id="st-delta"></div></div>
+
+<div id="scoreboard-join" class="screen">
+  <div class="jwrap">
+    <div class="jlogo" style="color:var(--gold)">📊 SCOREBOARD</div>
+    <div class="rc-entry-label">ENTER ROOM CODE</div>
+    <input class="biginput" id="sb-rc-input" maxlength="4" placeholder="XXXX" autocomplete="off"
+      style="border-color:rgba(255,215,0,.4)" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+    <div class="errmsg" id="sb-err"></div>
+    <button class="joinbtn" id="sb-joinbtn" onclick="joinAsScoreboard()"
+      style="background:linear-gradient(135deg,#FFD700,#FF8C00)">📊 CONNECT SCOREBOARD</button>
+    <button class="back-btn" onclick="showScreen('landing')" style="margin-top:.5rem">← Back</button>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.8rem;color:var(--muted);text-align:center;letter-spacing:1px;line-height:1.6">
+      Full-screen score display with live updates.<br>Great for projectors and secondary screens.
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCOREBOARD ══ -->
+<div id="scoreboard" class="screen">
+  <div class="sb-header">
+    <div class="sb-logo">⚡ SCOREBOARD</div>
+    <div class="sb-btns">
+      <div class="sk-conn-badge" id="sb-conn-badge" style="margin-bottom:0">
+        <div class="cdot" id="sb-cdot"></div><span id="sb-conn-txt">Connecting…</span>
+      </div>
+      <button class="mfsbtn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+      <button class="mfsbtn" onclick="triggerSbConfetti()">🎉 Confetti</button>
+      <button class="tb red" onclick="leaveSbView()">✕ Leave</button>
+    </div>
+  </div>
+  <div class="sb-body" id="sb-body">
+    <div style="text-align:center;color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:3px;font-size:1rem">Connecting to game…</div>
+  </div>
+</div>
+
+<!-- ══ SCOREKEEPER JOIN ══ -->
+<div id="scorekeeper-join" class="screen">
+  <div class="jwrap">
+    <div class="jlogo" style="color:#00FFFF">🎯 SCOREKEEPER</div>
+    <div class="rc-entry-label">ENTER ROOM CODE</div>
+    <input class="biginput" id="sk-rc-input" maxlength="4" placeholder="XXXX" autocomplete="off"
+      style="border-color:rgba(0,255,255,.35);color:#00FFFF;caret-color:#00FFFF"
+      oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+    <div class="errmsg" id="sk-err"></div>
+    <button class="joinbtn" id="sk-joinbtn" onclick="joinAsScorekeeper()"
+      style="background:linear-gradient(135deg,#00FFFF,#0088CC);color:#07070F">🎯 CONNECT AS SCOREKEEPER</button>
+    <button class="back-btn" onclick="showScreen('landing')" style="margin-top:.5rem">← Back</button>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.8rem;color:var(--muted);text-align:center;letter-spacing:1px;line-height:1.6">
+      Manage scores and dollar amounts.<br>Full increment/decrement controls.
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCOREKEEPER ══ -->
+<div id="scorekeeper" class="screen">
+  <div class="sk-header">
+    <div>
+      <div class="sk-title">🎯 SCOREKEEPER</div>
+      <div class="sk-sub">ROOM: <span id="sk-room-code" style="color:var(--gold)">----</span> &nbsp;·&nbsp; <span id="sk-conn-status">Connecting…</span></div>
+    </div>
+    <div style="display:flex;gap:.5rem">
+      <button class="tb" onclick="skToggleDollar()">💰 Toggle $</button>
+      <button class="tb red" onclick="leaveSkView()">✕ Leave</button>
+    </div>
+  </div>
+  <div class="sk-conn-badge" id="sk-conn-badge">
+    <div class="cdot bad" id="sk-cdot"></div><span id="sk-conn-label">Connecting to host…</span>
+  </div>
+  <div id="sk-dollar-bar" style="display:none;background:var(--surf);border:1px solid rgba(255,215,0,.15);border-radius:9px;padding:.6rem 1rem;margin-bottom:.8rem;font-family:'Barlow Condensed',sans-serif;font-size:.85rem;color:var(--muted);letter-spacing:1px">
+    💰 Dollar Mode ON &nbsp;·&nbsp; Base value: <span id="sk-point-val" style="color:var(--gold);font-family:'Black Ops One',cursive"></span> per point
+  </div>
+  <div class="sk-teams" id="sk-teams">
+    <div style="text-align:center;color:var(--muted);font-family:'Barlow Condensed',sans-serif;padding:2rem;letter-spacing:2px">Connecting to game…</div>
+  </div>
+</div>
+
+<!-- ══ TIMEKEEPER JOIN ══ -->
+<div id="timekeeper-join" class="screen">
+  <div class="jwrap">
+    <div class="jlogo" style="color:var(--green)">⏱ TIMEKEEPER</div>
+    <div class="rc-entry-label">ENTER ROOM CODE</div>
+    <input class="biginput" id="tk-rc-input" maxlength="4" placeholder="XXXX" autocomplete="off"
+      style="border-color:rgba(0,255,136,.35);color:var(--green);caret-color:var(--green)"
+      oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+    <div class="errmsg" id="tk-err"></div>
+    <button class="joinbtn" id="tk-joinbtn" onclick="joinAsTimekeeper()"
+      style="background:linear-gradient(135deg,var(--green),#009944)">⏱ CONNECT AS TIMEKEEPER</button>
+    <button class="back-btn" onclick="showScreen('landing')" style="margin-top:.5rem">← Back</button>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.8rem;color:var(--muted);text-align:center;letter-spacing:1px;line-height:1.6;margin-top:.5rem">
+      Controls the countdown timer displayed on all screens.<br>
+      Start, stop and reset the timer from this device.
+    </div>
+  </div>
+</div>
+
+<!-- ══ TIMEKEEPER CONTROL SCREEN ══ -->
+<div id="timekeeper" class="screen">
+  <div class="tk-header">
+    <div>
+      <div class="tk-title">⏱ TIMEKEEPER</div>
+      <div class="tk-sub">ROOM: <span id="tk-room-code" style="color:var(--gold)">----</span> &nbsp;·&nbsp; <span id="tk-conn-status">Connecting…</span></div>
+    </div>
+    <div style="display:flex;gap:.5rem">
+      <button class="tb red" onclick="leaveTkView()">✕ Leave</button>
+    </div>
+  </div>
+  <div class="tk-conn-badge" id="tk-conn-badge">
+    <div class="cdot bad" id="tk-cdot"></div><span id="tk-conn-label">Connecting to host…</span>
+  </div>
+
+  <!-- Big countdown -->
+  <div class="tk-countdown idle" id="tk-countdown">15</div>
+  <div class="tk-status" id="tk-status">SELECT A DURATION AND PRESS START</div>
+
+  <!-- Preset buttons -->
+  <div class="tk-presets">
+    <button class="tk-preset s5" onclick="tkSetDuration(5)">5s</button>
+    <button class="tk-preset s10" onclick="tkSetDuration(10)">10s</button>
+    <button class="tk-preset s15 active" onclick="tkSetDuration(15)">15s</button>
+  </div>
+
+  <!-- Controls -->
+  <div class="tk-controls">
+    <button class="tk-btn start" id="tk-start-btn" onclick="tkStart()">▶ START</button>
+    <button class="tk-btn stop"  id="tk-stop-btn"  onclick="tkStop()"  disabled>■ STOP</button>
+    <button class="tk-btn reset" id="tk-reset-btn" onclick="tkReset()">↺ RESET</button>
+    <button class="tk-btn next"  id="tk-next-btn"  onclick="tkNext()">⏭ NEXT</button>
+  </div>
+
+  <div class="tk-next-up" id="tk-next-up">Next preset: <span id="tk-next-val">10s</span></div>
+</div>
+
+
+
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  BUZZER SHOWDOWN v2.0 — Full P2P Multiplayer
+//  Features:
+//  • Host / Player / Monitor / Recover modes
+//  • PeerJS P2P networking
+//  • QR overlay on monitor when locked
+//  • Session recovery on accidental close
+//  • Question countdown timer
+//  • Player kick
+//  • Player → direct join link (not host)
+//  • Fullscreen API for TV/Android
+// ═══════════════════════════════════════════════════════════
+
+const TEAM_COLORS=['#FF3B3B','#00BFFF','#00FF88','#FFD700','#BB44FF','#FF8800','#00FFFF','#FF44AA'];
+const SESSION_KEY='bzr_session';
+
+let G={
+  roomCode:'',isHost:false,isMonitor:false,isScoreboard:false,isScorekeeper:false,isTimekeeper:false,
+  teams:[],scores:{},buzzers:[],
+  locked:true,questionNum:1,roundStart:null,
+  players:{},gameStarted:false,
+  peer:null,hostConn:null,monConns:[],sbConns:[],skConns:[],tkConns:[],
+  myId:'',myName:'',myTeamId:'',
+  timerSecs:null,timerEnd:null,timerRunning:false,
+  dollarMode:false,pointValue:100,
+  buzzLingerSecs:5,
+  lingerActive:false,
+  lingerBuzzers:[],
+};
+
+let selTeamIdx=0;
+let peekPeer=null;
+let codeLoadTimer=null;
+let timerRAF=null;
+let playerTimerRAF=null;
+
+// ── TIMEKEEPER STATE ──
+let TK={
+  duration:15,      // selected duration in seconds
+  running:false,
+  endTime:null,
+  nextDuration:10,  // what "Next" will arm
+  rafId:null,
+  _lastSentSecs:null,
+};
+const TK_PRESETS=[15,10,5]; // cycle order for Next button
+let monQrBuilt=false;
+let sbCaf=null;
+let entryMode=null; // tracks how the user arrived: 'player','monitor','scoreboard','scorekeeper', or null (landing)
+let _prevScores={}; // scoreboard: previous scores for change detection
+let _prevRanks={};  // scoreboard: previous rank indices
+
+// ── SCREENS ──
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function openMonitorView(){
+  showScreen('monitor');
+  renderMonitor();
+  updateMonQrOverlay();
+  // Auto-request fullscreen on TV/external display
+  if(document.documentElement.requestFullscreen)
+    document.documentElement.requestFullscreen().catch(()=>{});
+}
+
+// ── SETUP ──
+function initTeams(){
+  G.teams=[
+    {id:'t1',name:'Team Alpha',color:'#FF3B3B'},
+    {id:'t2',name:'Team Beta', color:'#00BFFF'},
+    {id:'t3',name:'Team Gamma',color:'#00FF88'},
+    {id:'t4',name:'Team Delta',color:'#FFD700'},
+  ];
+  renderTeamRows();
+}
+function addTeam(){
+  if(G.teams.length>=8)return;
+  const i=G.teams.length;
+  G.teams.push({id:'t'+Date.now(),name:`Team ${String.fromCharCode(65+i)}`,color:TEAM_COLORS[i%8]});
+  renderTeamRows();
+}
+function removeTeam(i){if(G.teams.length<=2)return;G.teams.splice(i,1);renderTeamRows();}
+function renderTeamRows(){
+  document.getElementById('team-rows').innerHTML=G.teams.map((t,i)=>`
+    <div class="team-row">
+      <div class="cswatch" style="background:${t.color}"></div>
+      <input class="tinput" value="${esc(t.name)}" oninput="G.teams[${i}].name=this.value" placeholder="Team Name">
+      <button class="rmbtn" onclick="removeTeam(${i})">✕</button>
+    </div>`).join('');
+}
+
+// ── START GAME ──
+async function startGame(){
+  const btn=document.getElementById('startbtn');
+  const status=document.getElementById('setup-status');
+  document.querySelectorAll('.tinput').forEach((el,i)=>{if(G.teams[i])G.teams[i].name=el.value.trim()||`Team ${i+1}`;});
+  btn.disabled=true;btn.textContent='Connecting…';status.textContent='⚡ Setting up room…';
+
+  const code=randomCode();
+  G.roomCode=code;G.isHost=true;G.myId='host_'+code;
+  G.scores={};G.teams.forEach(t=>G.scores[t.id]=0);
+  G.buzzers=[];G.locked=true;G.questionNum=1;G.players={};G.monConns=[];
+  G.timerSecs=null;G.timerEnd=null;G.timerRunning=false;
+  _prevScores={};_prevRanks={};
+
+  try{
+    G.peer=await createPeer('bzr-'+code);
+    G.peer.on('connection',onIncomingConn);
+    G.peer.on('error',e=>toast('⚠ '+e.type));
+    G.peer.on('disconnected',()=>{try{G.peer.reconnect();}catch(e){}});
+    startHeartbeat();
+    saveSession();
+    status.textContent='';btn.disabled=false;btn.textContent='▶ START GAME';
+    showScreen('host');
+    buildHostUI(true);
+  }catch(e){
+    status.textContent='⚠ Could not connect. Check internet.';
+    btn.disabled=false;btn.textContent='▶ START GAME';
+  }
+}
+
+function saveSession(){
+  const s={
+    roomCode:G.roomCode,teams:G.teams,scores:G.scores,
+    buzzers:G.buzzers,locked:G.locked,questionNum:G.questionNum,
+    players:safePlayers(),timestamp:Date.now(),
+    dollarMode:G.dollarMode,pointValue:G.pointValue,
+    buzzLingerSecs:G.buzzLingerSecs,timerSecs:G.timerSecs,
+  };
+  try{sessionStorage.setItem(SESSION_KEY,JSON.stringify(s));}catch(e){}
+}
+
+function clearSession(){try{sessionStorage.removeItem(SESSION_KEY);}catch(e){}}
+
+// ── SESSION RECOVERY ──
+function checkRecovery(){
+  try{
+    const raw=sessionStorage.getItem(SESSION_KEY);
+    if(!raw)return;
+    const s=JSON.parse(raw);
+    // Only offer recovery if within 2 hours
+    if(Date.now()-s.timestamp>7200000){clearSession();return;}
+    document.getElementById('recover-btn').style.display='block';
+    document.getElementById('recover-code').textContent=s.roomCode;
+    return s;
+  }catch(e){return null;}
+}
+
+function tryRecover(){
+  const s=checkRecovery();
+  if(!s)return;
+  document.getElementById('recover-code').textContent=s.roomCode;
+  document.getElementById('recover-modal').classList.add('show');
+}
+
+async function doRecover(){
+  document.getElementById('recover-modal').classList.remove('show');
+  const raw=sessionStorage.getItem(SESSION_KEY);
+  if(!raw)return;
+  const s=JSON.parse(raw);
+
+  const btn=document.getElementById('startbtn');
+  const status=document.getElementById('setup-status');
+
+  G.roomCode=s.roomCode;G.isHost=true;G.myId='host_'+s.roomCode;
+  G.teams=s.teams;G.scores=s.scores;G.buzzers=s.buzzers;
+  G.locked=s.locked;G.questionNum=s.questionNum;
+  G.players={};G.monConns=[];
+  G.teams.forEach(t=>{if(!(t.id in G.scores))G.scores[t.id]=0;});
+  if(s.dollarMode!==undefined)G.dollarMode=s.dollarMode;
+  if(s.pointValue!==undefined)G.pointValue=s.pointValue;
+  if(s.buzzLingerSecs!==undefined)G.buzzLingerSecs=s.buzzLingerSecs;
+  if(s.timerSecs!==undefined)G.timerSecs=s.timerSecs;
+
+  showScreen('setup');
+  btn.disabled=true;btn.textContent='Reconnecting…';status.textContent='🔄 Rejoining room '+s.roomCode+'…';
+
+  try{
+    G.peer=await createPeer('bzr-'+s.roomCode);
+    G.peer.on('connection',onIncomingConn);
+    G.peer.on('error',e=>toast('⚠ '+e.type));
+    G.peer.on('disconnected',()=>{try{G.peer.reconnect();}catch(e){}});
+    startHeartbeat();
+    saveSession();
+    status.textContent='';btn.disabled=false;btn.textContent='▶ START GAME';
+    renderTeamRows();
+    showScreen('host');
+    buildHostUI();
+    toast('✓ Session recovered! Room: '+s.roomCode);
+  }catch(e){
+    // Peer ID already taken (old session still alive) — try with suffix
+    status.textContent='⚠ Could not reclaim room. Starting fresh…';
+    btn.disabled=false;btn.textContent='▶ START GAME';
+    clearSession();
+  }
+}
+
+function dismissRecover(){
+  document.getElementById('recover-modal').classList.remove('show');
+  clearSession();
+  document.getElementById('recover-btn').style.display='none';
+}
+
+async function rejoinAsHost(){
+  const code=document.getElementById('rh-rc-input').value.trim().toUpperCase();
+  const err=document.getElementById('rh-err');
+  const btn=document.getElementById('rh-joinbtn');
+  if(code.length<4){err.textContent='Enter the 4-letter room code';return;}
+  err.textContent='';btn.disabled=true;btn.textContent='Connecting…';
+
+  // Try to load a saved session matching this code
+  let saved=null;
+  try{
+    const raw=sessionStorage.getItem(SESSION_KEY);
+    if(raw){const s=JSON.parse(raw);if(s.roomCode===code)saved=s;}
+  }catch(e){}
+
+  // Restore G from saved session or start with defaults for this code
+  G.roomCode=code;G.isHost=true;G.myId='host_'+code;
+  G.players={};G.monConns=[];G.sbConns=[];G.skConns=[];
+  if(saved){
+    G.teams=saved.teams;G.scores=saved.scores;G.buzzers=[];
+    G.locked=true;G.questionNum=saved.questionNum;
+    if(saved.dollarMode!==undefined)G.dollarMode=saved.dollarMode;
+    if(saved.pointValue!==undefined)G.pointValue=saved.pointValue;
+    if(saved.buzzLingerSecs!==undefined)G.buzzLingerSecs=saved.buzzLingerSecs;
+    if(saved.timerSecs!==undefined)G.timerSecs=saved.timerSecs;
+  }else{
+    // No saved session — restore teams from the peer if possible, start fresh otherwise
+    G.buzzers=[];G.locked=true;G.questionNum=1;
+  }
+  G.teams.forEach(t=>{if(!(t.id in G.scores))G.scores[t.id]=0;});
+
+  try{
+    G.peer=await createPeer('bzr-'+code);
+    G.peer.on('connection',onIncomingConn);
+    G.peer.on('error',e=>toast('⚠ '+e.type));
+    G.peer.on('disconnected',()=>{try{G.peer.reconnect();}catch(e){}});
+    startHeartbeat();
+    saveSession();
+    btn.disabled=false;btn.textContent='🔑 RECONNECT AS HOST';
+    renderTeamRows();
+    showScreen('host');
+    buildHostUI();
+    toast('✓ Reconnected as host! Room: '+code+(saved?' — session restored':''));
+  }catch(e){
+    err.textContent='Could not claim room "'+code+'" — it may still be active or expired.';
+    btn.disabled=false;btn.textContent='🔑 RECONNECT AS HOST';
+    if(G.peer){try{G.peer.destroy();}catch(_){}G.peer=null;}
+  }
+}
+
+// ── PEER CREATION ──
+const ICE_SERVERS = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:stun2.l.google.com:19302' },
+    // Open Relay free TURN — handles strict NAT, mobile networks, hotel WiFi
+    { urls: 'turn:openrelay.metered.ca:80',   username: 'openrelayproject', credential: 'openrelayproject' },
+    { urls: 'turn:openrelay.metered.ca:443',  username: 'openrelayproject', credential: 'openrelayproject' },
+    { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
+  ]
+};
+
+function createPeer(id, retries=2){
+  return new Promise((resolve, reject) => {
+    let attempt = 0;
+    function tryCreate(){
+      const p = new Peer(id, { debug: 0, config: ICE_SERVERS });
+      let settled = false;
+      const timer = setTimeout(() => {
+        if (settled) return; settled = true;
+        try { p.destroy(); } catch(_) {}
+        if (attempt < retries) { attempt++; tryCreate(); }
+        else reject(new Error('timeout'));
+      }, 15000);
+      p.on('open', () => {
+        if (settled) return; settled = true;
+        clearTimeout(timer); resolve(p);
+      });
+      p.on('error', e => {
+        if (settled) return;
+        if (e.type === 'unavailable-id') { settled = true; clearTimeout(timer); reject(e); return; }
+        clearTimeout(timer);
+        try { p.destroy(); } catch(_) {}
+        if (attempt < retries) { attempt++; tryCreate(); }
+        else { settled = true; reject(e); }
+      });
+    }
+    tryCreate();
+  });
+}
+
+function randomCode(){
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({length:4},()=>c[Math.floor(Math.random()*c.length)]).join('');
+}
+
+// ── INCOMING CONNECTIONS (host side) ──
+function onIncomingConn(conn){
+  conn.on('open',()=>{
+    conn.on('data',d=>onIncomingData(conn,d));
+    conn.on('close',()=>onConnClose(conn));
+    conn.on('error',()=>onConnClose(conn));
+  });
+}
+
+function onConnClose(conn){
+  G.monConns=G.monConns.filter(c=>c!==conn);
+  G.sbConns=G.sbConns.filter(c=>c!==conn);
+  G.skConns=G.skConns.filter(c=>c!==conn);
+  G.tkConns=G.tkConns.filter(c=>c!==conn);
+  dropPlayer(conn.peer);
+}
+
+function onIncomingData(conn,data){
+  if(!data?.type)return;
+  if(data.type==='PONG') return; // heartbeat ack — no action needed
+  if(data.type==='PEEK'||data.type==='MON_PEEK'){
+    conn.send({type:'STATE',state:packState()});return;
+  }
+  if(data.type==='MON_JOIN'){
+    G.monConns.push(conn);
+    conn.send({type:'STATE',state:packState()});
+    return;
+  }
+  if(data.type==='SB_JOIN'){
+    G.sbConns.push(conn);
+    conn.send({type:'STATE',state:packState()});
+    return;
+  }
+  if(data.type==='SK_JOIN'){
+    G.skConns.push(conn);
+    conn.send({type:'STATE',state:packState()});
+    return;
+  }
+  if(data.type==='TK_JOIN'){
+    G.tkConns.push(conn);
+    conn.send({type:'STATE',state:packState()});
+    return;
+  }
+  if(data.type==='TK_CMD'){
+    // Relay timekeeper command to all monitors and update host mini display
+    for(const c of G.monConns) try{if(c?.open)c.send({type:'TK_STATE',tk:data.tk});}catch(e){}
+    updateHostTkMini(data.tk);
+    return;
+  }
+  if(data.type==='SK_TOGGLE_DOLLAR'){
+    G.dollarMode=!G.dollarMode;
+    broadcastAll({type:'STATE',state:packState()});
+    renderScoresGrid();renderMonitor();saveSession();
+    return;
+  }
+  if(data.type==='SK_SCORE'){
+    // Scorekeeper adjusting a score
+    const{teamId,delta}=data;
+    G.scores[teamId]=Math.max(0,(G.scores[teamId]||0)+delta);
+    const team=G.teams.find(t=>t.id===teamId);
+    broadcastAll({type:'STATE',state:packState()});
+    broadcastAll({type:'SCORE_DELTA',teamName:team?.name||'',teamColor:team?.color||'#FFD700',delta,dollarMode:G.dollarMode,pointValue:G.pointValue});
+    showScoreToast(team?.name||'',delta,team?.color||'#FFD700',G.dollarMode,G.pointValue);
+    renderScoresGrid();renderMonitor();saveSession();
+    return;
+  }
+  if(data.type==='JOIN'){
+    const{name,teamId,playerId}=data;
+    const team=G.teams.find(t=>t.id===teamId)||G.teams[0];
+    G.players[playerId]={name,teamId:team.id,teamName:team.name,teamColor:team.color,conn,connPeerId:conn.peer};
+    conn.send({type:'STATE',state:packState()});
+    broadcastAll({type:'PLAYERS',players:safePlayers()});
+    renderPlayers();renderScoresGrid();
+    playSound('join');
+    saveSession();
+    return;
+  }
+  if(data.type==='BUZZ'){
+    const{playerId,elapsed}=data;
+    const player=G.players[playerId];
+    if(!player||G.locked||G.buzzers.find(b=>b.playerId===playerId))return;
+    const rank=G.buzzers.length+1;
+    G.buzzers.push({playerId,playerName:player.name,teamId:player.teamId,teamName:player.teamName,teamColor:player.teamColor,elapsed,rank});
+    G.gameStarted=true;
+    broadcastAll({type:'STATE',state:packState()});
+    renderBuzzList();renderMonitor();updateMonQrOverlay();
+    if(rank===1)showOverlay(player.name,{name:player.teamName,color:player.teamColor});
+    playSound(rank===1?'first':'buzz');
+    saveSession();
+    return;
+  }
+}
+
+function dropPlayer(connPeerId){
+  for(const[pid,p]of Object.entries(G.players)){
+    if(p.connPeerId===connPeerId){delete G.players[pid];break;}
+  }
+  renderPlayers();
+  broadcastAll({type:'PLAYERS',players:safePlayers()});
+  saveSession();
+}
+
+function kickPlayer(pid){
+  const p=G.players[pid];
+  if(!p)return;
+  try{if(p.conn?.open)p.conn.send({type:'KICKED'});}catch(e){}
+  delete G.players[pid];
+  renderPlayers();renderScoresGrid();
+  broadcastAll({type:'PLAYERS',players:safePlayers()});
+  saveSession();
+}
+
+function safePlayers(){
+  const out={};
+  for(const[id,p]of Object.entries(G.players))
+    out[id]={name:p.name,teamId:p.teamId,teamName:p.teamName,teamColor:p.teamColor};
+  return out;
+}
+
+// ── DOLLAR MODE ──
+function onDollarToggle(on){
+  G.dollarMode=on;
+  document.getElementById('dollar-config').style.display=on?'block':'none';
+  updateDollarPreview();
+}
+function setPointValue(v,btn){
+  G.pointValue=v||100;
+  document.getElementById('point-value-input').value=G.pointValue;
+  document.querySelectorAll('.dpreset').forEach(b=>b.classList.remove('sel'));
+  if(btn)btn.classList.add('sel');
+  updateDollarPreview();
+}
+function updateDollarPreview(){
+  const v=G.pointValue||100;
+  const steps=[1,2,3,4,5].map(x=>'$'+(x*v).toLocaleString()).join(' · ');
+  const el=document.getElementById('dollar-preview');
+  if(el)el.textContent='Increments: '+steps;
+}
+function setBuzzLinger(secs,btn){
+  G.buzzLingerSecs=secs;
+  const inp=document.getElementById('o-buzz-linger');
+  if(inp)inp.value=secs;
+  document.querySelectorAll('.sel-linger').forEach(b=>b.classList.remove('sel-linger'));
+  if(btn)btn.classList.add('sel-linger');
+}
+function fmtScore(pts){
+  if(!G.dollarMode)return String(pts);
+  const v=(pts||0)*(G.pointValue||100);
+  return '$'+(v<0?'-':'')+(Math.abs(v)).toLocaleString();
+}
+function getDollarIncrements(){
+  // multiples of pointValue: 1x, 2x, 3x, 4x, 5x, 10x
+  const v=G.pointValue||100;
+  return [1,2,3,4,5,10].map(x=>x*v);
+}
+
+function packState(){
+  return{
+    teams:G.teams,scores:G.scores,buzzers:G.buzzers,
+    locked:G.locked,questionNum:G.questionNum,roundStart:G.roundStart,
+    players:safePlayers(),timerSecs:G.timerSecs,timerEnd:G.timerEnd,timerRunning:G.timerRunning,
+    roomCode:G.roomCode,gameStarted:G.gameStarted,dollarMode:G.dollarMode,pointValue:G.pointValue,
+    buzzLingerSecs:G.buzzLingerSecs,
+    lingerActive:G.lingerActive,
+    lingerBuzzers:G.lingerActive?G.lingerBuzzers:[],
+  };
+}
+
+function broadcastAll(msg){
+  for(const p of Object.values(G.players))
+    try{if(p.conn?.open)p.conn.send(msg);}catch(e){}
+  for(const c of G.monConns)
+    try{if(c?.open)c.send(msg);}catch(e){}
+  for(const c of G.sbConns)
+    try{if(c?.open)c.send(msg);}catch(e){}
+  for(const c of G.skConns)
+    try{if(c?.open)c.send(msg);}catch(e){}
+  for(const c of G.tkConns)
+    try{if(c?.open)c.send(msg);}catch(e){}
+}
+
+// ── HEARTBEAT (host → clients, every 6s) ──
+let _hbInterval = null;
+function startHeartbeat(){
+  if(_hbInterval) clearInterval(_hbInterval);
+  _hbInterval = setInterval(() => {
+    if(G.isHost) broadcastAll({type:'PING', ts: Date.now()});
+  }, 6000);
+}
+
+// ── CLIENT AUTO-RECONNECT ──
+const MAX_RECONNECT = 8;
+const RECONNECT_BASE_MS = 1500;
+let _rcAttempts = 0;
+let _rcTimer = null;
+
+function scheduleReconnect(){
+  if(!G.roomCode || G.isHost) return;
+  if(_rcAttempts >= MAX_RECONNECT){
+    toast('⚠ Could not reconnect — refresh to rejoin');
+    return;
+  }
+  _rcAttempts++;
+  const delay = Math.min(RECONNECT_BASE_MS * _rcAttempts, 12000);
+  setConnStatus(false);
+  toast(`↻ Reconnecting… (${_rcAttempts}/${MAX_RECONNECT})`);
+  _rcTimer = setTimeout(async () => {
+    try{
+      if(G.peer && !G.peer.destroyed){ try{G.peer.destroy();}catch(_){} }
+      G.peer = await createPeer(G.myId);
+      const conn = G.peer.connect('bzr-'+G.roomCode, {reliable:true});
+      G.hostConn = conn;
+      const joinMsg = G.isMonitor   ? {type:'MON_JOIN'}
+                    : G.isScoreboard ? {type:'SB_JOIN'}
+                    : G.isScorekeeper? {type:'SK_JOIN'}
+                    : G.isTimekeeper ? {type:'TK_JOIN'}
+                    : {type:'JOIN', name:G.myName, teamId:G.myTeamId, playerId:G.myId};
+      conn.on('open',()=>{
+        _rcAttempts = 0;
+        conn.send(joinMsg);
+        setConnStatus(true);
+        toast('✓ Reconnected!');
+      });
+      conn.on('data', d => onHostData(d));
+      conn.on('close', () => scheduleReconnect());
+      conn.on('error', () => scheduleReconnect());
+      G.peer.on('disconnected', () => { try{G.peer.reconnect();}catch(_){} });
+    }catch(e){ scheduleReconnect(); }
+  }, delay);
+}
+
+// ── VISIBILITY / FOCUS RECOVERY ──
+// When a mobile browser tabs-out or screen locks, WebRTC can silently die.
+// On returning to focus, check the connection and trigger reconnect if needed.
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden || G.isHost) return;
+  setTimeout(() => {
+    if(G.hostConn && !G.hostConn.open){
+      scheduleReconnect();
+    }
+  }, 400);
+});
+
+// ── HOST CONTROLS ──
+function hostUnlock(){
+  G.locked=false;G.buzzers=[];G.roundStart=Date.now();G.gameStarted=true;
+  if(G.timerSecs)startTimer();
+  broadcastAll({type:'STATE',state:packState()});
+  renderBuzzList();renderMonitor();updateMonQrOverlay();playSound('unlock');updateMonBadge();saveSession();
+  // Flash UNLOCKED banner on host's local monitor view
+  _showMonBanner('unlock');
+}
+function hostReset(){
+  G.locked=true;G.buzzers=[];G.roundStart=null;G.lingerActive=false;G.lingerBuzzers=[];
+  stopTimer();
+  hideOverlay();
+  broadcastAll({type:'STATE',state:packState()});
+  renderBuzzList();renderMonitor();updateMonQrOverlay();updateMonBadge();saveSession();
+  _showMonBanner('reset');
+}
+
+function _showMonBanner(type){
+  const sec=document.getElementById('mon-buzz');
+  if(!sec)return;
+  const div=document.createElement('div');
+  if(type==='unlock'){
+    div.className='m-unlock-banner';
+    div.innerHTML='<div class="m-unlock-txt">⚡ OPEN</div>';
+  }else{
+    div.className='m-reset-banner';
+    div.innerHTML='<div class="m-reset-txt">⏭ NEXT QUESTION</div>';
+  }
+  sec.appendChild(div);
+  setTimeout(()=>div.remove(),950);
+}
+function hostNext(){
+  hostReset();G.questionNum++;
+  document.getElementById('q-num').textContent=G.questionNum;
+  broadcastAll({type:'STATE',state:packState()});
+  saveSession();
+}
+function adjustScore(tid,sign,dollarAmt){
+  let delta;
+  if(G.dollarMode&&dollarAmt){
+    delta=sign*(dollarAmt/(G.pointValue||100));
+  }else{
+    delta=sign*(dollarAmt||1);
+  }
+  G.scores[tid]=Math.max(0,(G.scores[tid]||0)+delta);
+  const team=G.teams.find(t=>t.id===tid);
+  broadcastAll({type:'STATE',state:packState()});
+  broadcastAll({type:'SCORE_DELTA',teamName:team?.name||'',teamColor:team?.color||'#FFD700',delta,dollarMode:G.dollarMode,pointValue:G.pointValue});
+  renderScoresGrid();
+  // Animate monitor standings score in-place without full re-render
+  const ptsEl=document.getElementById(`msf-pts-${tid}`);
+  if(ptsEl){
+    ptsEl.textContent=fmtScore(G.scores[tid]);
+    ptsEl.classList.remove('changed');
+    void ptsEl.offsetWidth; // force reflow to restart animation
+    ptsEl.classList.add('changed');
+    // Animate bar too
+    const barEl=document.getElementById(`msf-bar-${tid}`);
+    if(barEl){
+      const maxPts=Math.max(1,...G.teams.map(t=>G.scores[t.id]||0));
+      const barW=Math.max(3,Math.round(((G.scores[tid]||0)/maxPts)*100));
+      barEl.style.width=barW+'%';
+    }
+    // Float a delta label
+    if(team)showScoreDelta(ptsEl,delta,team.color);
+  } else {
+    renderMonitor();
+  }
+  // Update bottom strip if visible
+  buildAndFlashStrip(tid);
+  showScoreToast(team?.name||'',delta,team?.color||'#FFD700',G.dollarMode,G.pointValue);
+  saveSession();
+}
+
+function showScoreDelta(anchorEl,delta,color){
+  if(!anchorEl)return;
+  const rect=anchorEl.getBoundingClientRect();
+  const pop=document.createElement('div');
+  pop.className='score-delta-pop';
+  const sign=delta>=0?'+':'';
+  pop.textContent=G.dollarMode?sign+fmtScore(delta):sign+delta;
+  pop.style.color=delta>=0?'#00FF88':'#FF3B3B';
+  pop.style.left=rect.left+'px';
+  pop.style.top=rect.top+'px';
+  pop.style.textShadow=`0 0 20px ${delta>=0?'rgba(0,255,136,.8)':'rgba(255,60,60,.8)'}`;
+  document.body.appendChild(pop);
+  setTimeout(()=>pop.remove(),1500);
+}
+
+let _scoreToastTimer=null;
+function showScoreToast(teamName,delta,teamColor,dollarMode,pointValue){
+  const el=document.getElementById('score-toast');
+  const teamEl=document.getElementById('st-team');
+  const deltaEl=document.getElementById('st-delta');
+  if(!el||!teamEl||!deltaEl)return;
+  const sign=delta>=0?'+':'';
+  let deltaStr;
+  if(dollarMode){
+    const v=(delta||0)*(pointValue||100);
+    deltaStr=sign+(v<0?'-':'')+'$'+(Math.abs(v)).toLocaleString();
+  }else{
+    deltaStr=sign+delta;
+  }
+  teamEl.textContent=teamName;
+  teamEl.style.color=teamColor;
+  deltaEl.textContent=deltaStr;
+  deltaEl.className='st-delta '+(delta>=0?'pos':'neg');
+  el.style.borderColor=teamColor+'55';
+  if(_scoreToastTimer)clearTimeout(_scoreToastTimer);
+  el.classList.remove('hide');
+  el.classList.add('show');
+  _scoreToastTimer=setTimeout(()=>{el.classList.remove('show');el.classList.add('hide');},2200);
+}
+
+function buildAndFlashStrip(changedTeamId){
+  const strip=document.getElementById('mon-scores');
+  if(!strip||strip.style.display==='none')return;
+  strip.innerHTML=buildScoresStrip();
+  // Flash the updated team's pill
+  if(changedTeamId){
+    const pills=strip.querySelectorAll('.mspill');
+    const idx=G.teams.findIndex(t=>t.id===changedTeamId);
+    if(pills[idx]){pills[idx].classList.add('updated');}
+  }
+}
+function endGame(){
+  if(!confirm('End the game and disconnect everyone?'))return;
+  broadcastAll({type:'END'});
+  if(G.peer){G.peer.destroy();G.peer=null;}
+  if(_hbInterval){clearInterval(_hbInterval);_hbInterval=null;}
+  if(_rcTimer){clearTimeout(_rcTimer);_rcTimer=null;}
+  clearSession();
+  stopTimer();
+  G={roomCode:'',isHost:false,isMonitor:false,isScoreboard:false,isScorekeeper:false,teams:[],scores:{},buzzers:[],locked:true,questionNum:1,roundStart:null,players:{},gameStarted:false,peer:null,hostConn:null,monConns:[],sbConns:[],skConns:[],myId:'',myName:'',myTeamId:'',timerSecs:null,timerEnd:null,timerRunning:false,dollarMode:false,pointValue:100,buzzLingerSecs:5,lingerActive:false,lingerBuzzers:[]};
+  initTeams();
+  showScreen('landing');
+  document.getElementById('startbtn').disabled=false;
+  document.getElementById('startbtn').textContent='▶ START GAME';
+  document.getElementById('setup-status').textContent='';
+}
+
+// ── TIMER ──
+function setTimer(secs){G.timerSecs=secs;document.getElementById('qtimer-display').textContent=secs+'s';}
+function toggleTimer(){
+  if(G.timerRunning)stopTimer();
+  else if(G.timerSecs)startTimer();
+}
+function startTimer(){
+  G.timerRunning=true;
+  G.timerEnd=Date.now()+G.timerSecs*1000;
+  document.getElementById('timer-toggle-btn').textContent='Stop';
+  document.getElementById('timer-toggle-btn').classList.add('active');
+  runTimerTick();
+  broadcastAll({type:'STATE',state:packState()});
+}
+function resetTimer(){
+  stopTimer();
+  if(G.timerSecs)document.getElementById('qtimer-display').textContent=G.timerSecs+'s';
+  else document.getElementById('qtimer-display').textContent='--';
+}
+function runTimerTick(){
+  if(!G.timerRunning) return;
+  const rem = Math.max(0, G.timerEnd - Date.now());
+  const secs = Math.ceil(rem/1000);
+  const el = document.getElementById('qtimer-display');
+  if(el){ el.textContent = secs+'s'; el.className = 'qtimer-display'+(secs<=5?' warn':''); }
+  const mel = document.getElementById('mon-timer');
+  if(mel){ mel.textContent = secs+'s'; mel.className = 'mon-timer'+(secs<=5?' warn':''); mel.style.display='block'; }
+  if(rem <= 0){
+    stopTimer();
+    playSound('timeout');
+    if(mel) mel.style.display = 'none';
+    // Lock buzzers if currently unlocked
+    if(!G.locked){
+      G.locked = true;
+      // Broadcast LINGER_START first (with buzzers snapshot) so remote monitors
+      // freeze before the locked STATE triggers a re-render on their end
+      if(G.buzzers.length > 0){
+        broadcastAll({type:'LINGER_START', buzzers: G.buzzers.slice()});
+      }
+      broadcastAll({type:'STATE', state:packState()});
+      updateMonBadge();
+      saveSession();
+    }
+    // Show timeout flash on monitor, then after linger delay clear buzz list and render standings
+    showMonitorTimeout();
+    return;
+  }
+  timerRAF = requestAnimationFrame(runTimerTick);
+}
+
+function showMonitorTimeout(){
+  const sec=document.getElementById('mon-buzz');
+  if(!sec) return;
+  G.lingerActive = true;
+  G.lingerBuzzers = G.buzzers.slice();
+  const flash = document.createElement('div');
+  flash.className = 'mon-timeout-flash';
+  flash.innerHTML = '<div class="mon-timeout-icon">⏰</div><div class="mon-timeout-txt">TIME\'S UP!</div>';
+  sec.appendChild(flash);
+  const lingerMs = (G.buzzLingerSecs || 0) * 1000;
+  const totalDelay = 2400 + lingerMs;
+  setTimeout(()=>{
+    flash.remove();
+    G.lingerActive = false;
+    G.lingerBuzzers = [];
+    G.buzzers = [];
+    if(G.isHost){
+      broadcastAll({type:'LINGER_END'});
+      broadcastAll({type:'STATE', state:packState()});
+      renderBuzzList();
+      saveSession();
+    }
+    renderMonitor();
+    updateMonQrOverlay();
+  }, totalDelay);
+}
+
+// ── BUILD HOST UI ──
+function buildHostUI(fromSetup){
+  document.getElementById('room-code-disp').textContent=G.roomCode;
+  document.getElementById('mon-room').textContent='ROOM: '+G.roomCode;
+  document.getElementById('mon-qr-code-text').textContent=G.roomCode;
+  document.getElementById('q-num').textContent=G.questionNum;
+
+  // Only read dollar/timer settings from setup DOM when actually coming from the setup screen
+  if(fromSetup){
+    G.dollarMode=document.getElementById('o-dollar')?.checked||false;
+    G.pointValue=parseInt(document.getElementById('point-value-input')?.value)||100;
+    G.buzzLingerSecs=parseInt(document.getElementById('o-buzz-linger')?.value)||5;
+  }
+
+  // Build all role links & QR codes (API-based, works on every device)
+  buildRoleLinks();
+  renderScoresGrid();renderBuzzList();renderPlayers();renderMonitor();updateMonQrOverlay();
+}
+
+// ── QR & ROLE LINKS ──
+function getBaseURL(){
+  if(location.protocol.startsWith('http')){
+    return location.href.split('?')[0].split('#')[0];
+  }
+  // Local file fallback — use known deployment URL so QR codes and links still work
+  return 'https://iwd-jeopardy-gameshow.netlify.app/';
+}
+
+function makeRoleURL(role,code){
+  const base=getBaseURL();
+  if(!base) return null;
+  return `${base}?mode=${role}&join=${code}`;
+}
+
+function makeQRSrc(url,size){
+  if(!url)return '';
+  // qrserver.com — free API, no CORS issues, works everywhere including Android TV
+  const enc=encodeURIComponent(url);
+  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${enc}&color=EEEEFF&bgcolor=141426&qzone=1&format=png`;
+}
+
+function buildRoleLinks(){
+  const roles=['player','monitor','scoreboard','scorekeeper','timekeeper'];
+  const base=getBaseURL();
+  roles.forEach(role=>{
+    const url=makeRoleURL(role,G.roomCode);
+    const el=document.getElementById(`rl-${role}-url`);
+    if(el)el.textContent=url||'(share the file + code: '+G.roomCode+')';
+  });
+  // QR for player on host panel
+  const playerUrl=makeRoleURL('player',G.roomCode);
+  const qrEl=document.getElementById('qr-code');
+  if(qrEl&&playerUrl){
+    qrEl.src=makeQRSrc(playerUrl,90);
+    qrEl.onerror=()=>{ qrEl.style.display='none'; };
+  }
+  // Monitor overlay QR — also via API
+  buildMonitorQR(makeRoleURL('monitor',G.roomCode)||makeRoleURL('player',G.roomCode));
+}
+
+function buildMonitorQR(url){
+  const el=document.getElementById('mon-qr-img');
+  if(!el||!url)return;
+  el.src=makeQRSrc(url,160);
+  el.onerror=()=>{
+    // Fallback: just show the code large
+    el.style.display='none';
+  };
+  monQrBuilt=true;
+}
+
+function copyRoleLink(role){
+  const url=makeRoleURL(role,G.roomCode);
+  const text=url||(role.toUpperCase()+' — Room Code: '+G.roomCode);
+  navigator.clipboard.writeText(text)
+    .then(()=>toast(`✓ ${role} link copied!`))
+    .catch(()=>prompt(`${role} link:`,text));
+}
+
+function shareRoleLink(role){
+  const url=makeRoleURL(role,G.roomCode);
+  const roleLabel={'player':'Player','monitor':'Monitor','scoreboard':'Scoreboard','scorekeeper':'Scorekeeper','timekeeper':'Timekeeper'}[role]||role;
+  const text=`⚡ Buzzer Showdown — Join as ${roleLabel}\nRoom code: ${G.roomCode}${url?'\n'+url:''}`;
+  if(navigator.share&&url){
+    navigator.share({title:`Buzzer Showdown — ${roleLabel}`,text,url}).catch(()=>{
+      navigator.clipboard.writeText(text).then(()=>toast('✓ Copied!'));
+    });
+  }else{
+    navigator.clipboard.writeText(text).then(()=>toast('✓ Copied!')).catch(()=>prompt(`Share ${roleLabel}:`,text));
+  }
+}
+
+function copyAllLinks(){
+  const roles=['player','monitor','scoreboard','scorekeeper','timekeeper'];
+  const lines=[`⚡ BUZZER SHOWDOWN — Room: ${G.roomCode}`,''];
+  roles.forEach(r=>{
+    const url=makeRoleURL(r,G.roomCode);
+    lines.push(`${r.toUpperCase()}: ${url||G.roomCode}`);
+  });
+  const text=lines.join('\n');
+  navigator.clipboard.writeText(text).then(()=>toast('✓ All links copied!')).catch(()=>prompt('All links:',text));
+}
+
+function makePlayerURL(){
+  return makeRoleURL('player',G.roomCode)||G.roomCode;
+}
+
+function copyCode(){
+  const url=makePlayerURL();
+  const text=`Room Code: ${G.roomCode}\nJoin link: ${url}`;
+  navigator.clipboard.writeText(text).then(()=>toast('✓ Code + link copied!')).catch(()=>prompt('Room code + link:',text));
+}
+
+function shareLink(){
+  const url=makePlayerURL();
+  const text=`⚡ Join my Buzzer Showdown game!\nRoom code: ${G.roomCode}\nJoin link: ${url}`;
+  if(navigator.share){
+    navigator.share({title:'⚡ Buzzer Showdown - Join as Player',text,url}).catch(()=>{
+      navigator.clipboard.writeText(text).then(()=>toast('✓ Share text copied!'));
+    });
+  }else{
+    navigator.clipboard.writeText(text).then(()=>toast('✓ Share text copied!')).catch(()=>prompt('Share this with players:',text));
+  }
+}
+
+// ── HOST RENDER ──
+function renderBuzzList(){
+  const el=document.getElementById('blist');
+  if(!G.buzzers.length){el.innerHTML='<div class="empty">Waiting for buzzers…</div>';return;}
+  const rc=['r1','r2','r3'],sym=['🥇','🥈','🥉'];
+  el.innerHTML=G.buzzers.map((b,i)=>{
+    const d=i===0?'':'+'+((b.elapsed-G.buzzers[0].elapsed)/1000).toFixed(3)+'s';
+    return `<div class="brow" style="border-left-color:${b.teamColor}">
+      <div class="brk ${rc[i]||'rN'}">${sym[i]||'#'+(i+1)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="bname" style="color:${b.teamColor}">${esc(b.playerName)}</div>
+        <div class="bteam">${esc(b.teamName)}</div>
+      </div>
+      <div class="btime">${fmtMs(b.elapsed)}</div>
+      ${d?`<div class="bdelta">${d}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderScoresGrid(){
+  const incs = G.dollarMode ? getDollarIncrements().slice(0,4) : null;
+  document.getElementById('sgrid').innerHTML = G.teams.map(t => {
+    const pts = G.scores[t.id] || 0;
+    let btnHtml;
+    if (G.dollarMode && incs) {
+      const addRow = incs.map(v => {
+        const lbl = v >= 1000 ? '$'+(v/1000)+'K' : '$'+v;
+        return `<button class="scbtn p" onclick="adjustScore('${t.id}',1,${v})" title="+${lbl}">${lbl}</button>`;
+      }).join('');
+      const subRow = incs.map(v => {
+        const lbl = v >= 1000 ? '$'+(v/1000)+'K' : '$'+v;
+        return `<button class="scbtn m" onclick="adjustScore('${t.id}',-1,${v})" title="-${lbl}">-${lbl}</button>`;
+      }).join('');
+      btnHtml = `<div class="scbtns-wrap">
+        <div class="scbtns">${addRow}</div>
+        <div class="scbtns">${subRow}</div>
+      </div>`;
+    } else {
+      btnHtml = `<div class="scbtns">
+        <button class="scbtn p" onclick="adjustScore('${t.id}',1)" style="min-width:36px">+1</button>
+        <button class="scbtn p" onclick="adjustScore('${t.id}',2)" style="min-width:36px">+2</button>
+        <button class="scbtn p" onclick="adjustScore('${t.id}',3)" style="min-width:36px">+3</button>
+        <button class="scbtn m" onclick="adjustScore('${t.id}',-1)" style="min-width:36px">−1</button>
+      </div>`;
+    }
+    return `<div class="scard" style="border-color:${t.color}33">
+      <div class="scname" style="color:${t.color}">${esc(t.name)}</div>
+      <div class="scpts" style="color:${t.color}">${fmtScore(pts)}</div>
+      ${btnHtml}
+    </div>`;
+  }).join('');
+}
+
+function renderPlayers(){
+  const el=document.getElementById('pjoined');
+  const list=Object.entries(G.players);
+  const cnt=list.length;
+  document.getElementById('player-count').textContent=cnt;
+  document.getElementById('player-count2').textContent=cnt;
+  if(!cnt){el.innerHTML=`<span style="color:var(--muted);font-size:.82rem;font-style:italic">Nobody yet — share the room code!</span>`;return;}
+  el.innerHTML=list.map(([pid,p])=>
+    `<div class="pchip" style="border:1px solid ${p.teamColor}44" title="Click to kick">
+      <div class="chipdot" style="background:${p.teamColor}"></div>
+      ${esc(p.name)}
+      <span class="kick-x" onclick="kickPlayer('${pid}')">✕</span>
+    </div>`).join('');
+}
+
+// ── MONITOR QR / STANDINGS OVERLAY ──
+function updateMonQrOverlay(){
+  const overlay = document.getElementById('mon-qr-overlay');
+  const preGame = document.getElementById('mon-overlay-pregame');
+  const inGame  = document.getElementById('mon-overlay-ingame');
+
+  // Only show the QR overlay in the pre-game lobby (not started, locked, no buzzers)
+  // Once game starts, renderMonitor handles standings inline — overlay stays hidden
+  const showQR = !G.gameStarted && G.locked && G.buzzers.length === 0;
+
+  overlay.className = showQR ? 'visible' : 'hidden';
+  if(preGame) preGame.style.display = showQR ? 'flex' : 'none';
+  if(inGame)  inGame.style.display  = 'none'; // no longer used
+
+  if(showQR && !monQrBuilt && G.roomCode){
+    const url = makeRoleURL('player', G.roomCode);
+    if(url) buildMonitorQR(url);
+  }
+}
+
+function renderMonStandings(){
+  const el=document.getElementById('mon-standings-rows');
+  if(!el)return;
+  const sorted=[...G.teams].sort((a,b)=>(G.scores[b.id]||0)-(G.scores[a.id]||0));
+  const maxPts=G.scores[sorted[0]?.id]||1;
+  const ranks=['r1','r2','r3'];
+  el.innerHTML=sorted.map((t,i)=>{
+    const pts=G.scores[t.id]||0;
+    const bar=Math.max(4,Math.round((pts/maxPts)*100));
+    return`<div class="mon-st-row${i===0?' first':''}" style="border-left-color:${t.color}">
+      <div class="mon-st-rank ${ranks[i]||''}">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="mon-st-name" style="color:${t.color}">${esc(t.name)}</div>
+        <div class="mon-st-bar" style="width:${bar}%;background:${t.color};opacity:.5"></div>
+      </div>
+      <div class="mon-st-pts" style="color:${t.color}">${fmtScore(pts)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── PLAYER SIDE ──
+function onCodeInput(val){
+  const tgrid=document.getElementById('tgrid');
+  if(val.length<4){tgrid.innerHTML='<div class="tgrid-ph">Type the room code above to load teams</div>';document.getElementById('jerr').textContent='';return;}
+  tgrid.innerHTML='<div class="pulsemsg">Loading teams…</div>';
+  clearTimeout(codeLoadTimer);
+  codeLoadTimer=setTimeout(()=>loadTeams(val),500);
+}
+
+async function loadTeams(code){
+  const tgrid=document.getElementById('tgrid');
+  if(peekPeer&&!peekPeer.destroyed){try{peekPeer.destroy();}catch(e){}}
+  try{
+    peekPeer=await createPeer('peek-'+Date.now()+'-'+Math.random().toString(36).slice(2,5));
+    const conn=peekPeer.connect('bzr-'+code,{reliable:true});
+    let done=false;
+    conn.on('open',()=>conn.send({type:'PEEK'}));
+    conn.on('data',d=>{
+      if(done)return;done=true;
+      if(d.type==='STATE'&&d.state?.teams){G.teams=d.state.teams;selTeamIdx=0;renderTeamGrid();document.getElementById('jerr').textContent='';}
+      else tgrid.innerHTML='<div class="tgrid-ph" style="color:var(--red)">Could not load teams</div>';
+      conn.close();try{peekPeer.destroy();}catch(e){}
+    });
+    conn.on('error',()=>{if(!done){done=true;tgrid.innerHTML='<div class="tgrid-ph" style="color:var(--red)">Room not found</div>';try{peekPeer.destroy();}catch(e){}}});
+    setTimeout(()=>{if(!done){done=true;tgrid.innerHTML='<div class="tgrid-ph" style="color:var(--red)">Room not found — check code</div>';conn.close();try{peekPeer.destroy();}catch(e){};}},8000);
+  }catch(e){tgrid.innerHTML='<div class="tgrid-ph" style="color:var(--red)">Connection error</div>';}
+}
+
+function renderTeamGrid(){
+  document.getElementById('tgrid').innerHTML=G.teams.map((t,i)=>`
+    <div class="topt ${i===selTeamIdx?'sel':''}"
+      style="color:${t.color};border-color:${i===selTeamIdx?t.color:'rgba(255,255,255,.08)'}"
+      onclick="pickTeam(${i})">${esc(t.name)}</div>`).join('');
+}
+function pickTeam(i){selTeamIdx=i;renderTeamGrid();}
+
+async function joinGame(){
+  const code=document.getElementById('rc-input').value.trim().toUpperCase();
+  const name=document.getElementById('pname-input').value.trim();
+  const err=document.getElementById('jerr');
+  if(code.length<4){err.textContent='Enter the 4-letter room code';return;}
+  if(!name){err.textContent='Enter your name';return;}
+  if(!G.teams.length){err.textContent='Teams not loaded yet';return;}
+  err.textContent='';
+  const btn=document.getElementById('joinbtn');
+  btn.disabled=true;btn.textContent='Connecting…';
+  G.roomCode=code;G.isHost=false;
+  G.myId='p_'+Date.now()+'_'+Math.random().toString(36).slice(2,5);
+  G.myName=name;
+  const team=G.teams[selTeamIdx]||G.teams[0];
+  G.myTeamId=team.id;
+  try{
+    G.peer=await createPeer(G.myId);
+    const conn=G.peer.connect('bzr-'+code,{reliable:true});
+    G.hostConn=conn;
+    conn.on('open',()=>{ _rcAttempts=0; conn.send({type:'JOIN',name,teamId:team.id,playerId:G.myId}); });
+    conn.on('data',d=>onHostData(d));
+    conn.on('close',()=>scheduleReconnect());
+    conn.on('error',e=>{err.textContent='Failed: '+(e.type||'');btn.disabled=false;btn.textContent='JOIN GAME';if(G.peer){G.peer.destroy();G.peer=null;}});
+    document.getElementById('jform').style.display='none';
+    document.getElementById('bview').style.display='flex';
+    document.getElementById('pv-name').textContent=name;
+    document.getElementById('pv-team').textContent=team.name;
+    document.getElementById('pv-team').style.color=team.color;
+    const scoreEl=document.getElementById('pv-score');
+    if(scoreEl){scoreEl.textContent=fmtScore(G.scores[team.id]||0);scoreEl.style.color=team.color;}
+    const bb=document.getElementById('buzzbtn');
+    bb.style.background=`radial-gradient(circle at 38% 32%,${lighten(team.color,35)},${team.color} 48%,${darken(team.color,35)})`;
+    bb.style.boxShadow=`0 12px 50px ${team.color}55,inset 0 -10px 25px rgba(0,0,0,.3)`;
+    document.getElementById('bzstatus').textContent='Connecting…';
+    document.getElementById('bzstatus').className='bzstatus';
+    setTimeout(()=>setConnStatus(conn.open),2000);
+  }catch(e){err.textContent='Error: '+e.message;btn.disabled=false;btn.textContent='JOIN GAME';}
+}
+
+function setConnStatus(ok){
+  // Player screen
+  const dot=document.getElementById('p-cdot');
+  const txt=document.getElementById('p-conn-txt');
+  const reconnecting = !ok && _rcAttempts > 0 && _rcAttempts < MAX_RECONNECT;
+  if(dot){dot.className='cdot'+(ok?'':' bad');}
+  if(txt){txt.textContent=ok?'Connected to host': reconnecting?`Reconnecting… (${_rcAttempts}/${MAX_RECONNECT})`:'Disconnected';}
+  // Scorekeeper screen
+  const skDot=document.getElementById('sk-cdot');
+  const skLbl=document.getElementById('sk-conn-label');
+  const skSub=document.getElementById('sk-conn-status');
+  if(skDot){skDot.className='cdot'+(ok?'':' bad');}
+  if(skLbl){skLbl.textContent=ok?'Connected · Room '+G.roomCode:'Disconnected';}
+  if(skSub){skSub.textContent=ok?'Connected':'Disconnected';}
+  // Timekeeper screen
+  const tkDot=document.getElementById('tk-cdot');
+  const tkLbl=document.getElementById('tk-conn-label');
+  const tkSub=document.getElementById('tk-conn-status');
+  if(tkDot){tkDot.className='cdot'+(ok?'':' bad');}
+  if(tkLbl){tkLbl.textContent=ok?'Connected · Room '+G.roomCode:'Disconnected';}
+  if(tkSub){tkSub.textContent=ok?'Connected':'Disconnected';}
+}
+
+async function joinAsMonitor(){
+  const code=document.getElementById('mj-rc-input').value.trim().toUpperCase();
+  const err=document.getElementById('mj-err');
+  const btn=document.getElementById('mj-joinbtn');
+  if(code.length<4){err.textContent='Enter the 4-letter room code';return;}
+  err.textContent='';btn.disabled=true;btn.textContent='Connecting…';
+  G.isMonitor=true;G.roomCode=code;
+  G.myId='mon_'+Date.now()+'_'+Math.random().toString(36).slice(2,5);
+  try{
+    G.peer=await createPeer(G.myId);
+    const conn=G.peer.connect('bzr-'+code,{reliable:true});
+    G.hostConn=conn;
+    conn.on('open',()=>{ _rcAttempts=0; conn.send({type:'MON_JOIN'}); });
+    conn.on('data',d=>onHostData(d));
+    conn.on('close',()=>scheduleReconnect());
+    conn.on('error',e=>{err.textContent='Failed: '+(e.type||'');btn.disabled=false;btn.textContent='📺 CONNECT MONITOR';});
+    showScreen('monitor');
+    renderMonitor();
+    updateMonQrOverlay();
+    // Auto fullscreen for TV
+    const fsEl = document.documentElement;
+    const fsReq = fsEl.requestFullscreen || fsEl.webkitRequestFullscreen || fsEl.mozRequestFullScreen || fsEl.msRequestFullscreen;
+    if(fsReq){ try{ fsReq.call(fsEl); }catch(_){} }
+  }catch(e){err.textContent='Error: '+e.message;btn.disabled=false;btn.textContent='📺 CONNECT MONITOR';}
+}
+
+// ── HOST DATA → CLIENT ──
+function onHostData(d){
+  if(!d?.type)return;
+  if(d.type==='PING'){ if(G.hostConn?.open) G.hostConn.send({type:'PONG',ts:d.ts}); return; }
+  if(d.type==='COUNTDOWN'){ _applyCountdown(d.secs); return; }
+  if(d.type==='COUNTDOWN_CANCEL'){ hideCountdown(); return; }
+  if(d.type==='STATE'){
+    hideCountdown(); // clear any stale countdown overlay from channel rewind
+    const hadFirstBuzz=G.buzzers.length>0;
+    G.teams=d.state.teams||G.teams;
+    G.scores=d.state.scores||{};
+    // During linger, keep our snapshot — don't overwrite buzzers from STATE
+    if(!G.lingerActive){
+      G.buzzers=d.state.buzzers||[];
+    }
+    G.locked=d.state.locked!==undefined?d.state.locked:G.locked;
+    G.questionNum=d.state.questionNum||G.questionNum;
+    G.roundStart=d.state.roundStart;
+    G.timerSecs=d.state.timerSecs;
+    G.timerEnd=d.state.timerEnd;
+    G.timerRunning=d.state.timerRunning;
+    G.gameStarted=d.state.gameStarted||false;
+    G.dollarMode=d.state.dollarMode||false;
+    G.pointValue=d.state.pointValue||100;
+    G.buzzLingerSecs=d.state.buzzLingerSecs!==undefined?d.state.buzzLingerSecs:5;
+    const justGotFirstBuzz=!hadFirstBuzz&&G.buzzers.length>0;
+    if(G.isMonitor){
+      // If host is in linger and we're not yet — start it atomically from the STATE payload
+      if(d.state.lingerActive && !G.lingerActive){
+        G.lingerActive=true;
+        G.lingerBuzzers=d.state.lingerBuzzers||G.buzzers.slice();
+        G.buzzers=G.lingerBuzzers.slice();
+        showMonitorTimeout();
+      }
+      // During linger: restore snapshot buzzers so renderMonitor shows them correctly
+      if(G.lingerActive) G.buzzers=G.lingerBuzzers.slice();
+      // Block full re-render during linger — only update score strip & badge
+      if(!G.lingerActive){
+        renderMonitor();updateMonQrOverlay();
+      }
+      runClientTimer();
+      if(justGotFirstBuzz){
+        const first=G.buzzers[0];
+        showOverlay(first.playerName,{name:first.teamName,color:first.teamColor});
+      }
+    }else if(G.isScoreboard){
+      renderScoreboard();
+      if(justGotFirstBuzz)triggerSbConfetti();
+    }else if(G.isScorekeeper){
+      renderScorekeeper();
+    }else{
+      updateBuzzerUI();runPlayerTimer();
+    }
+    setConnStatus(true);
+  }
+  // Block PLAYERS re-render during linger too
+  if(d.type==='PLAYERS'&&G.isMonitor&&!G.lingerActive)renderMonitor();
+  if(d.type==='KICKED'){toast('You were removed by the host');setTimeout(()=>smartExit(),2000);}
+  if(d.type==='SCORE_DELTA'){
+    showScoreToast(d.teamName,d.delta,d.teamColor,d.dollarMode,d.pointValue);
+  }
+  if(d.type==='LINGER_START'&&G.isMonitor&&!G.lingerActive){
+    G.lingerActive=true;
+    // Use the buzzers snapshot from the message — G.buzzers may already be
+    // overwritten by the STATE broadcast that follows immediately after
+    G.lingerBuzzers=d.buzzers||G.buzzers.slice();
+    G.buzzers=G.lingerBuzzers.slice();
+    showMonitorTimeout();
+  }
+  if(d.type==='LINGER_END'&&G.isMonitor){
+    G.lingerActive=false;
+    G.lingerBuzzers=[];
+    G.buzzers=[];
+  }
+  if(d.type==='TK_STATE'){
+    if(G.isMonitor) tkMonReceive(d.tk);
+    if(G.isHost) updateHostTkMini(d.tk);
+  }
+  if(d.type==='END'){
+    toast('Game ended by host');
+    setTimeout(()=>smartExit(),1800);
+  }
+}
+
+// Client-side timer display (monitor/scoreboard/player)
+function runClientTimer(){
+  const el = document.getElementById('mon-timer');
+  if(!el) return;
+  if(!G.timerRunning || !G.timerEnd){ el.style.display='none'; return; }
+  el.style.display = 'block';
+  if(timerRAF) cancelAnimationFrame(timerRAF);
+  function tick(){
+    const rem = Math.max(0, G.timerEnd - Date.now());
+    const secs = Math.ceil(rem/1000);
+    el.textContent = secs+'s';
+    el.className = 'mon-timer' + (secs<=5?' warn':'');
+    if(rem > 0){
+      timerRAF = requestAnimationFrame(tick);
+    } else {
+      el.style.display = 'none';
+    }
+  }
+  tick();
+}
+
+function runPlayerTimer(){
+  const wrap=document.getElementById('pcount-wrap');
+  const bar=document.getElementById('pcount-bar');
+  if(!wrap||!bar)return;
+  if(!G.timerRunning||!G.timerEnd||!G.timerSecs){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  if(playerTimerRAF)cancelAnimationFrame(playerTimerRAF);
+  function tick(){
+    const rem=Math.max(0,G.timerEnd-Date.now());
+    const pct=(rem/(G.timerSecs*1000))*100;
+    bar.style.width=pct+'%';
+    bar.className='pcount-bar'+(pct<25?' warn':'');
+    if(rem>0)playerTimerRAF=requestAnimationFrame(tick);else wrap.style.display='none';
+  }
+  tick();
+}
+
+// ── BUZZ ──
+function doBuzz(){
+  if(G.locked){playSound('locked');updateBuzzerUI();return;}
+  if(G.buzzers.find(b=>b.playerId===G.myId))return;
+  if(!G.hostConn?.open){toast('⚠ Not connected');return;}
+  const elapsed=G.roundStart?Date.now()-G.roundStart:0;
+  if(navigator.vibrate)navigator.vibrate([60,30,60]);
+  G.hostConn.send({type:'BUZZ',playerId:G.myId,elapsed});
+  document.getElementById('buzzbtn').disabled=true;
+  document.getElementById('bzstatus').textContent='Buzzed! Waiting…';
+  document.getElementById('bzstatus').className='bzstatus go';
+  playSound('buzz');
+}
+
+function updateBuzzerUI(){
+  const btn=document.getElementById('buzzbtn');
+  const st=document.getElementById('bzstatus');
+  if(!btn)return;
+  // Update team score display
+  const scoreEl=document.getElementById('pv-score');
+  if(scoreEl&&G.myTeamId){
+    const newScore=fmtScore(G.scores[G.myTeamId]||0);
+    if(scoreEl.textContent!==newScore&&scoreEl.textContent!=='—'){
+      scoreEl.classList.remove('bumped');
+      void scoreEl.offsetWidth;
+      scoreEl.classList.add('bumped');
+    }
+    scoreEl.textContent=newScore;
+    // Color matches team color
+    const team=G.teams.find(t=>t.id===G.myTeamId);
+    if(team)scoreEl.style.color=team.color;
+  }
+  const myBuzz=G.buzzers.find(b=>b.playerId===G.myId);
+  if(myBuzz){
+    btn.disabled=true;
+    st.textContent=myBuzz.rank===1?'🥇 FIRST IN!':`#${myBuzz.rank} — Buzzed in!`;
+    st.className='bzstatus go';
+    if(myBuzz.rank===1)showOverlay(G.myName,G.teams.find(t=>t.id===G.myTeamId)||{name:'',color:'#FFD700'});
+  }else if(G.locked){
+    btn.disabled=false;
+    st.textContent='🔒 Waiting for host to unlock…';
+    st.className='bzstatus locked';
+  }else{
+    btn.disabled=false;
+    st.textContent='⚡ BUZZERS OPEN — GO!';
+    st.className='bzstatus go';
+  }
+}
+
+// ── MONITOR RENDER ──
+function renderMonitor(){
+  updateMonBadge();
+  document.getElementById('mon-q').textContent=G.questionNum;
+  document.getElementById('mon-room').textContent='ROOM: '+(G.roomCode||'');
+  document.getElementById('mon-qr-code-text').textContent=G.roomCode||'';
+
+  const sec=document.getElementById('mon-buzz');
+  const scoresStrip=document.getElementById('mon-scores');
+
+  // During linger: always show the snapshotted buzz list regardless of locked state
+  const displayBuzzers = G.lingerActive ? G.lingerBuzzers : G.buzzers;
+
+  if(G.lingerActive && displayBuzzers.length){
+    scoresStrip.innerHTML=buildScoresStrip();
+    scoresStrip.style.display='flex';
+    const rc=['r1','r2','r3'];
+    sec.innerHTML=displayBuzzers.map((b,i)=>{
+      const rk=rc[i]||'rN';
+      const delta=i===0?'FIRST':'+'+((b.elapsed-displayBuzzers[0].elapsed)/1000).toFixed(3)+'s';
+      return`<div class="mrow ${i===0?'mfirst':''}" style="--rc:${b.teamColor};border-left-color:${b.teamColor}">
+        <div class="mrnum ${rk}">${i+1}</div>
+        <div class="minfo">
+          <div class="mtname" style="color:${b.teamColor}">${esc(b.teamName)}</div>
+          <div class="mpname">${esc(b.playerName)}</div>
+        </div>
+        <div class="mtcol">
+          <div class="melapsed ${rk}">${fmtMs(b.elapsed)}</div>
+          <div class="mdelta">${delta}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } else if(G.locked){
+    // LOCKED: show full-screen standings (default state)
+    scoresStrip.style.display='none';
+    renderMonStandingsFull(sec);
+  } else if(!G.buzzers.length){
+    // UNLOCKED, waiting for buzzers
+    scoresStrip.innerHTML=buildScoresStrip();
+    scoresStrip.style.display='flex';
+    sec.innerHTML=`<div class="mempty"><div class="mwicon">⚡</div><div class="mwtxt">BUZZERS OPEN</div></div>`;
+  } else {
+    // BUZZERS IN — show buzz list
+    scoresStrip.innerHTML=buildScoresStrip();
+    scoresStrip.style.display='flex';
+    const rc=['r1','r2','r3'];
+    sec.innerHTML=G.buzzers.map((b,i)=>{
+      const rk=rc[i]||'rN';
+      const delta=i===0?'FIRST':'+'+((b.elapsed-G.buzzers[0].elapsed)/1000).toFixed(3)+'s';
+      return`<div class="mrow ${i===0?'mfirst':''}" style="--rc:${b.teamColor};border-left-color:${b.teamColor}">
+        <div class="mrnum ${rk}">${i+1}</div>
+        <div class="minfo">
+          <div class="mtname" style="color:${b.teamColor}">${esc(b.teamName)}</div>
+          <div class="mpname">${esc(b.playerName)}</div>
+        </div>
+        <div class="mtcol">
+          <div class="melapsed ${rk}">${fmtMs(b.elapsed)}</div>
+          <div class="mdelta">${delta}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function buildScoresStrip(){
+  return G.teams.map(t=>
+    `<div class="mspill"><div class="msdot" style="background:${t.color}"></div>
+    <div class="msteam">${esc(t.name)}</div>
+    <div class="mspts" style="color:${t.color}">${fmtScore(G.scores[t.id]||0)}</div></div>`
+  ).join('');
+}
+
+function renderMonStandingsFull(container){
+  const sorted=[...G.teams].sort((a,b)=>(G.scores[b.id]||0)-(G.scores[a.id]||0));
+  const maxPts=Math.max(1,...sorted.map(t=>G.scores[t.id]||0));
+  const ranks=['r1','r2','r3'];
+  const medals=['🥇','🥈','🥉'];
+  // Bars start at 0 — JS animates them after paint
+  const barTargets=[];
+  container.innerHTML=`<div class="mon-standings-full">
+    <div class="msf-title">📊 STANDINGS</div>
+    ${sorted.map((t,i)=>{
+      const pts=G.scores[t.id]||0;
+      const barW=maxPts>0?Math.max(3,Math.round((pts/maxPts)*100)):0;
+      barTargets.push({teamId:t.id,barW});
+      return`<div class="msf-row${i===0?' msf-first':''}" style="border-left-color:${t.color};animation-delay:${i*0.1}s">
+        <div class="msf-rank ${ranks[i]||'rn'}">${medals[i]||'#'+(i+1)}</div>
+        <div class="msf-info">
+          <div class="msf-name" style="color:${t.color}">${esc(t.name)}</div>
+          <div class="msf-bar-wrap"><div class="msf-bar" id="msf-bar-${t.id}" style="background:${t.color}"></div></div>
+        </div>
+        <div class="msf-pts" id="msf-pts-${t.id}" style="color:${t.color}">${fmtScore(pts)}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+  // Two-frame delay so CSS transition fires after initial paint at width:0
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    barTargets.forEach(({teamId,barW})=>{
+      const bar=document.getElementById(`msf-bar-${teamId}`);
+      if(bar)bar.style.width=barW+'%';
+    });
+  }));
+}
+
+function updateMonBadge(){
+  const b=document.getElementById('mon-badge');if(!b)return;
+  b.textContent=G.locked?'LOCKED':'UNLOCKED';
+  b.className='mbadge '+(G.locked?'locked':'open');
+}
+
+// ── SCOREBOARD JOIN ──
+async function joinAsScoreboard(){
+  const code=document.getElementById('sb-rc-input').value.trim().toUpperCase();
+  const err=document.getElementById('sb-err');
+  const btn=document.getElementById('sb-joinbtn');
+  if(code.length<4){err.textContent='Enter the 4-letter room code';return;}
+  err.textContent='';btn.disabled=true;btn.textContent='Connecting…';
+  G.isScoreboard=true;G.roomCode=code;
+  G.myId='sb_'+Date.now()+'_'+Math.random().toString(36).slice(2,5);
+  try{
+    G.peer=await createPeer(G.myId);
+    const conn=G.peer.connect('bzr-'+code,{reliable:true});
+    G.hostConn=conn;
+    conn.on('open',()=>{ _rcAttempts=0; conn.send({type:'SB_JOIN'}); });
+    conn.on('data',d=>onHostData(d));
+    conn.on('close',()=>scheduleReconnect());
+    conn.on('error',e=>{err.textContent='Failed: '+(e.type||'');btn.disabled=false;btn.textContent='📊 CONNECT SCOREBOARD';G.isScoreboard=false;});
+    showScreen('scoreboard');
+    _prevScores={};_prevRanks={};
+    document.getElementById('sb-cdot').className='cdot';
+    document.getElementById('sb-conn-txt').textContent='Connected · Room '+code;
+  }catch(e){err.textContent='Error: '+e.message;btn.disabled=false;btn.textContent='📊 CONNECT SCOREBOARD';G.isScoreboard=false;}
+}
+
+// Track previous scores/ranks for change detection on scoreboard
+
+function renderScoreboard(){
+  const body=document.getElementById('sb-body');
+  if(!body)return;
+  const sorted=[...G.teams].sort((a,b)=>(G.scores[b.id]||0)-(G.scores[a.id]||0));
+  const maxPts=Math.max(1,...sorted.map(t=>G.scores[t.id]||0));
+  const ranks=['r1','r2','r3'];
+  const medals=['🥇','🥈','🥉'];
+  const isFirstRender=Object.keys(_prevRanks).length===0;
+  // Build new rank map
+  const newRanks={};
+  sorted.forEach((t,i)=>newRanks[t.id]=i);
+
+  // Bars start at 0 — JS drives them
+  const barTargets=[];
+  const changedScores=new Set();
+  sorted.forEach(t=>{
+    if(_prevScores[t.id]!==undefined&&_prevScores[t.id]!==G.scores[t.id])
+      changedScores.add(t.id);
+  });
+
+  body.innerHTML=sorted.map((t,i)=>{
+    const pts=G.scores[t.id]||0;
+    const barW=Math.max(3,Math.round((pts/maxPts)*100));
+    barTargets.push({id:t.id,barW});
+    const rankImproved=!isFirstRender&&_prevRanks[t.id]!==undefined&&newRanks[t.id]<_prevRanks[t.id];
+    const scoreChanged=changedScores.has(t.id);
+    return`<div class="sb-row${i===0?' sb-first':''} sb-anim" style="border-left-color:${t.color};animation-delay:${isFirstRender?i*0.12:0}s">
+      <div class="sb-rank ${ranks[i]||'rn'}">${medals[i]||'#'+(i+1)}</div>
+      <div class="sb-info">
+        <div class="sb-name" style="color:${t.color}">${esc(t.name)}${rankImproved?'<span class="rank-up-badge">▲</span>':''}</div>
+        <div class="sb-bar-wrap"><div class="sb-bar" id="sb-bar-${t.id}" style="background:${t.color}"></div></div>
+      </div>
+      <div class="sb-score${scoreChanged&&!isFirstRender?' score-pop':''}" style="color:${t.color};filter:drop-shadow(0 0 10px ${t.color}66)">${fmtScore(pts)}</div>
+    </div>`;
+  }).join('');
+
+  // Animate bars after paint
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    barTargets.forEach(({id,barW})=>{
+      const bar=document.getElementById(`sb-bar-${id}`);
+      if(bar)bar.style.width=barW+'%';
+    });
+  }));
+  // Update tracking
+  sorted.forEach(t=>{_prevScores[t.id]=G.scores[t.id];});
+  Object.assign(_prevRanks,newRanks);
+}
+
+function leaveSbView(){
+  if(G.peer){G.peer.destroy();G.peer=null;}
+  G.isScoreboard=false;
+  showScreen('landing');
+}
+
+function triggerSbConfetti(){
+  const cv=document.getElementById('sb-confetti');
+  const cx=cv.getContext('2d');
+  cv.width=innerWidth;cv.height=innerHeight;
+  const cols=['#FFD700','#FF3B3B','#00FF88','#00BFFF','#BB44FF','#FF8800','#FFFFFF'];
+  const ps=Array.from({length:200},()=>({
+    x:Math.random()*cv.width,y:-10-Math.random()*150,
+    r:4+Math.random()*7,d:2+Math.random()*3,
+    c:cols[~~(Math.random()*cols.length)],a:Math.random()*Math.PI*2,as:.08+Math.random()*.2
+  }));
+  if(sbCaf)cancelAnimationFrame(sbCaf);
+  let ttl=0;
+  function draw(){
+    cx.clearRect(0,0,cv.width,cv.height);
+    ps.forEach(p=>{
+      cx.save();cx.translate(p.x,p.y);cx.rotate(p.a);
+      cx.fillStyle=p.c;cx.fillRect(-p.r/2,-p.r/2,p.r,p.r*.5);
+      cx.restore();p.y+=p.d;p.a+=p.as;p.x+=Math.sin(p.a)*2;
+      if(p.y>cv.height)p.y=-10;
+    });
+    ttl++;
+    if(ttl<220)sbCaf=requestAnimationFrame(draw);
+    else cx.clearRect(0,0,cv.width,cv.height);
+  }
+  draw();
+}
+
+// ── SCOREKEEPER JOIN ──
+async function joinAsScorekeeper(){
+  const code=document.getElementById('sk-rc-input').value.trim().toUpperCase();
+  const err=document.getElementById('sk-err');
+  const btn=document.getElementById('sk-joinbtn');
+  if(code.length<4){err.textContent='Enter the 4-letter room code';return;}
+  err.textContent='';btn.disabled=true;btn.textContent='Connecting…';
+  G.isScorekeeper=true;G.roomCode=code;
+  G.myId='sk_'+Date.now()+'_'+Math.random().toString(36).slice(2,5);
+  try{
+    G.peer=await createPeer(G.myId);
+    const conn=G.peer.connect('bzr-'+code,{reliable:true});
+    G.hostConn=conn;
+    conn.on('open',()=>{ _rcAttempts=0; conn.send({type:'SK_JOIN'}); setConnStatus(true); });
+    conn.on('data',d=>onHostData(d));
+    conn.on('close',()=>scheduleReconnect());
+    conn.on('error',e=>{err.textContent='Failed: '+(e.type||'');btn.disabled=false;btn.textContent='🎯 CONNECT AS SCOREKEEPER';G.isScorekeeper=false;setConnStatus(false);});
+    showScreen('scorekeeper');
+    document.getElementById('sk-room-code').textContent=code;
+    document.getElementById('sk-cdot').className='cdot bad';
+    document.getElementById('sk-conn-label').textContent='Connecting to host…';
+  }catch(e){err.textContent='Error: '+e.message;btn.disabled=false;btn.textContent='🎯 CONNECT AS SCOREKEEPER';G.isScorekeeper=false;}
+}
+
+function skSendScore(teamId,dollarAmt,sign){
+  if(!G.hostConn?.open){toast('⚠ Not connected to host');return;}
+  let delta;
+  if(G.dollarMode&&dollarAmt){
+    delta=sign*(dollarAmt/(G.pointValue||100));
+  }else{
+    delta=sign*(dollarAmt||1);
+  }
+  // Optimistic local update
+  G.scores[teamId]=Math.max(0,(G.scores[teamId]||0)+delta);
+  renderScorekeeper();
+  // Flash the score display for this team
+  const scoreEl=document.querySelector(`.sk-card[data-team="${teamId}"] .sk-score-display`);
+  if(scoreEl){
+    scoreEl.style.transition='none';
+    scoreEl.style.transform='scale(1.35)';
+    scoreEl.style.color='#fff';
+    setTimeout(()=>{scoreEl.style.transition='all .3s';scoreEl.style.transform='';scoreEl.style.color='';},180);
+  }
+  G.hostConn.send({type:'SK_SCORE',teamId,delta});
+}
+
+function skToggleDollar(){
+  if(!G.hostConn?.open){toast('⚠ Not connected to host');return;}
+  G.dollarMode=!G.dollarMode;// optimistic local flip
+  renderScorekeeper();
+  toast(G.dollarMode?'💰 Dollar Mode ON':'🔢 Points Mode');
+  G.hostConn.send({type:'SK_TOGGLE_DOLLAR'});
+}
+
+function renderScorekeeper(){
+  const el = document.getElementById('sk-teams');
+  if(!el) return;
+  const bar = document.getElementById('sk-dollar-bar');
+  const pval = document.getElementById('sk-point-val');
+  if(bar) bar.style.display = G.dollarMode ? 'block' : 'none';
+  if(pval) pval.textContent = '$' + (G.pointValue||100).toLocaleString();
+
+  // Limit to 4 increments max so buttons don't overflow on small screens
+  const allIncs = G.dollarMode ? getDollarIncrements() : [1,2,3,5,10];
+  const incs = allIncs.slice(0, 4);
+  const cols = incs.length;
+
+  el.innerHTML = G.teams.map(t => {
+    const pts = G.scores[t.id] || 0;
+    const scoreDisp = fmtScore(pts);
+    const addBtns = incs.map(v => {
+      const lbl = G.dollarMode ? (v>=1000 ? '$'+(v/1000)+'K' : '$'+v) : ('+'+v);
+      return `<button class="sk-btn add" onclick="skSendScore('${t.id}',${v},1)">${lbl}</button>`;
+    }).join('');
+    const subBtns = incs.map(v => {
+      const lbl = G.dollarMode ? (v>=1000 ? '$'+(v/1000)+'K' : '$'+v) : ('-'+v);
+      return `<button class="sk-btn sub" onclick="skSendScore('${t.id}',${v},-1)">${lbl}</button>`;
+    }).join('');
+    return `<div class="sk-card" data-team="${t.id}" style="border-color:${t.color}33">
+      <div class="sk-card-top">
+        <div class="sk-dot" style="background:${t.color}"></div>
+        <div class="sk-tname" style="color:${t.color}">${esc(t.name)}</div>
+        <div class="sk-score-display" style="color:${t.color}">${scoreDisp}</div>
+      </div>
+      <div class="sk-btns">
+        <div class="sk-btn-row" style="grid-template-columns:repeat(${cols},1fr)">${addBtns}</div>
+        <div class="sk-btn-row" style="grid-template-columns:repeat(${cols},1fr)">${subBtns}</div>
+        <button class="sk-btn zero" onclick="skResetTeam('${t.id}',${pts})">↺ Reset to 0</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function skResetTeam(teamId, currentPts){
+  if(!confirm('Reset team score to 0?')) return;
+  G.scores[teamId] = 0;
+  renderScorekeeper();
+  if(G.hostConn?.open) G.hostConn.send({type:'SK_SCORE', teamId, delta: -currentPts});
+}
+
+function leaveSkView(){
+  if(G.peer){G.peer.destroy();G.peer=null;}
+  G.isScorekeeper=false;
+  showScreen('landing');
+}
+
+// ══ TIMEKEEPER MODULE ══
+async function joinAsTimekeeper(){
+  const code=document.getElementById('tk-rc-input').value.trim().toUpperCase();
+  const err=document.getElementById('tk-err');
+  const btn=document.getElementById('tk-joinbtn');
+  if(code.length<4){err.textContent='Enter the 4-letter room code';return;}
+  err.textContent='';btn.disabled=true;btn.textContent='Connecting…';
+  G.isTimekeeper=true;G.roomCode=code;
+  G.myId='tk_'+Date.now()+'_'+Math.random().toString(36).slice(2,5);
+  try{
+    G.peer=await createPeer(G.myId);
+    const conn=G.peer.connect('bzr-'+code,{reliable:true});
+    G.hostConn=conn;
+    conn.on('open',()=>{ _rcAttempts=0; conn.send({type:'TK_JOIN'}); setConnStatus(true); });
+    conn.on('data',d=>onHostData(d));
+    conn.on('close',()=>scheduleReconnect());
+    conn.on('error',e=>{err.textContent='Failed: '+(e.type||'');btn.disabled=false;btn.textContent='⏱ CONNECT AS TIMEKEEPER';G.isTimekeeper=false;setConnStatus(false);});
+    showScreen('timekeeper');
+    document.getElementById('tk-room-code').textContent=code;
+    document.getElementById('tk-cdot').className='cdot bad';
+    document.getElementById('tk-conn-label').textContent='Connecting to host…';
+    TK.duration=15;TK.nextDuration=10;TK.running=false;TK.endTime=null;
+    tkRenderControl();
+  }catch(e){err.textContent='Error: '+e.message;btn.disabled=false;btn.textContent='⏱ CONNECT AS TIMEKEEPER';G.isTimekeeper=false;}
+}
+
+function leaveTkView(){
+  if(TK.running)tkStop();
+  if(G.peer){G.peer.destroy();G.peer=null;}
+  G.isTimekeeper=false;
+  showScreen('landing');
+}
+
+function tkSetDuration(secs){
+  if(TK.running)return;// ignore while running
+  TK.duration=secs;
+  // Update active preset highlight
+  document.querySelectorAll('.tk-preset').forEach(b=>b.classList.remove('active'));
+  const map={5:'s5',10:'s10',15:'s15'};
+  document.querySelectorAll('.tk-preset.'+map[secs]).forEach(b=>b.classList.add('active'));
+  tkRenderControl();
+}
+
+function tkStart(){
+  if(TK.running)return;
+  TK.running=true;
+  TK._lastSentSecs=null;// force immediate first send
+  TK.endTime=Date.now()+TK.duration*1000;
+  tkSendState();// send immediately so monitor shows overlay right away
+  tkTick();
+  document.getElementById('tk-start-btn').disabled=true;
+  document.getElementById('tk-stop-btn').disabled=false;
+  document.getElementById('tk-status').textContent='RUNNING…';
+  document.getElementById('tk-status').className='tk-status running';
+}
+
+function tkStop(){
+  if(!TK.running)return;
+  TK.running=false;
+  TK._lastSentSecs=null;
+  if(TK.rafId)cancelAnimationFrame(TK.rafId);
+  tkSendState();
+  document.getElementById('tk-start-btn').disabled=false;
+  document.getElementById('tk-stop-btn').disabled=true;
+  document.getElementById('tk-status').textContent='PAUSED';
+  document.getElementById('tk-status').className='tk-status';
+  tkRenderCountdown(Math.max(0,TK.endTime-Date.now()));
+}
+
+function tkReset(){
+  TK.running=false;
+  TK.endTime=null;
+  TK._lastSentSecs=null;
+  if(TK.rafId)cancelAnimationFrame(TK.rafId);
+  tkSendState('reset');// tells monitor to hide the overlay
+  tkRenderControl();
+  document.getElementById('tk-status').textContent='SELECT A DURATION AND PRESS START';
+  document.getElementById('tk-status').className='tk-status';
+  document.getElementById('tk-start-btn').disabled=false;
+  document.getElementById('tk-stop-btn').disabled=true;
+}
+
+function tkNext(){
+  // Stop current, advance to next preset in cycle, show "ready" state
+  TK.running=false;
+  if(TK.rafId)cancelAnimationFrame(TK.rafId);
+  TK.duration=TK.nextDuration;
+  // Cycle: 15→10→5→15
+  const cycle=[15,10,5];
+  const idx=cycle.indexOf(TK.duration);
+  TK.nextDuration=cycle[(idx+1)%cycle.length];
+  TK.endTime=null;
+  tkSendState('reset');// hide monitor overlay between rounds
+  tkSetDuration(TK.duration);
+  document.getElementById('tk-status').textContent='READY — PRESS START';
+  document.getElementById('tk-status').className='tk-status';
+  document.getElementById('tk-start-btn').disabled=false;
+  document.getElementById('tk-stop-btn').disabled=true;
+  document.getElementById('tk-next-val').textContent=TK.nextDuration+'s';
+}
+
+function tkTick(){
+  if(!TK.running){return;}
+  const rem=Math.max(0,TK.endTime-Date.now());
+  const secs=Math.ceil(rem/1000);
+  tkRenderCountdown(rem);
+  // Only send state over network when the displayed second changes (not every RAF frame)
+  if(secs !== TK._lastSentSecs){
+    TK._lastSentSecs=secs;
+    tkSendState();
+  }
+  if(rem<=0){
+    TK.running=false;
+    TK._lastSentSecs=null;
+    tkExpire();
+    return;
+  }
+  TK.rafId=requestAnimationFrame(tkTick);
+}
+
+function tkExpire(){
+  tkSendState('expired');
+  document.getElementById('tk-status').textContent='TIME\'S UP!';
+  document.getElementById('tk-status').className='tk-status expired';
+  document.getElementById('tk-start-btn').disabled=false;
+  document.getElementById('tk-stop-btn').disabled=true;
+  // Play sound on TK device too
+  playSound('timeout');
+}
+
+function tkSendState(event){
+  if(!G.hostConn?.open)return;
+  const rem=TK.endTime?Math.max(0,TK.endTime-Date.now()):TK.duration*1000;
+  G.hostConn.send({type:'TK_CMD',tk:{
+    running:TK.running,
+    rem,
+    duration:TK.duration*1000,
+    event:event||null,
+  }});
+}
+
+function tkRenderControl(){
+  const secs=TK.endTime&&TK.running?Math.ceil(Math.max(0,TK.endTime-Date.now())/1000):TK.duration;
+  const el=document.getElementById('tk-countdown');
+  if(el){el.textContent=secs;el.className='tk-countdown idle';}
+  document.getElementById('tk-next-val').textContent=TK.nextDuration+'s';
+  document.getElementById('tk-start-btn').disabled=false;
+  document.getElementById('tk-stop-btn').disabled=true;
+}
+
+function tkRenderCountdown(remMs){
+  const secs=Math.ceil(remMs/1000);
+  const el=document.getElementById('tk-countdown');
+  if(!el)return;
+  el.textContent=secs;
+  if(secs<=3)el.className='tk-countdown red';
+  else if(secs<=7)el.className='tk-countdown amber';
+  else el.className='tk-countdown green';
+}
+
+// ── HOST: Update TK mini-display on admin panel ──
+function updateHostTkMini(tk){
+  const wrap=document.getElementById('tk-admin-wrap');
+  const disp=document.getElementById('tk-admin-display');
+  const stat=document.getElementById('tk-admin-status');
+  if(!wrap||!disp||!stat)return;
+  if(tk.event==='reset'){
+    disp.textContent='--';disp.className='tk-admin-display idle';
+    stat.textContent='Timekeeper ready · '+tk.duration/1000+'s preset';
+    wrap.style.display='flex';return;
+  }
+  wrap.style.display='flex';
+  if(tk.event==='expired'){
+    disp.textContent='0';disp.className='tk-admin-display red';
+    stat.textContent='TIME\'S UP!';return;
+  }
+  const secs=Math.ceil(tk.rem/1000);
+  disp.textContent=secs;
+  disp.className='tk-admin-display '+(secs<=3?'red':secs<=7?'amber':'green');
+  stat.textContent=tk.running?'Running…':'Paused · '+tk.duration/1000+'s preset';
+}
+
+// ── MONITOR: Handle TK_STATE from host relay ──
+let _tkMonRaf=null;
+let _tkMonEndTime=null;
+let _tkMonDuration=null;
+
+function tkMonReceive(tk){
+  const overlay=document.getElementById('mon-tk-overlay');
+  if(!overlay)return;
+
+  // Reset event or idle state → hide the overlay
+  if(tk.event==='reset'){
+    tkMonHide();
+    return;
+  }
+
+  if(tk.event==='expired'){
+    tkMonShowExpiry();return;
+  }
+
+  // Show overlay — clear inline style.display so CSS class takes over
+  overlay.style.display='';
+  overlay.classList.remove('hidden');
+  requestAnimationFrame(()=>overlay.classList.add('active'));
+  _tkMonDuration=tk.duration;
+  if(tk.running){
+    // Sync the end time from the authoritative source, then let local ticker run smoothly
+    _tkMonEndTime=Date.now()+tk.rem;
+    // Only start local ticker if not already running
+    if(!_tkMonRaf){
+      tkMonTick();
+    }
+    document.getElementById('tk-mon-label').textContent='TIME REMAINING';
+  }else{
+    // Paused — stop local ticker, show static value
+    if(_tkMonRaf){cancelAnimationFrame(_tkMonRaf);_tkMonRaf=null;}
+    const remMs=tk.rem;
+    tkMonSetDisplay(remMs,_tkMonDuration);
+    document.getElementById('tk-mon-label').textContent='PAUSED';
+  }
+}
+
+function tkMonTick(){
+  const rem=Math.max(0,_tkMonEndTime-Date.now());
+  tkMonSetDisplay(rem,_tkMonDuration);
+  document.getElementById('tk-mon-label').textContent='TIME REMAINING';
+  if(rem<=0){_tkMonRaf=null;tkMonShowExpiry();return;}
+  _tkMonRaf=requestAnimationFrame(tkMonTick);
+}
+
+function tkMonSetDisplay(remMs,durationMs){
+  const secs=Math.ceil(remMs/1000);
+  const numEl=document.getElementById('tk-mon-num');
+  const barEl=document.getElementById('tk-mon-bar');
+  if(!numEl||!barEl)return;
+  // Only update text and play tick when second actually changes
+  const prevSecs=parseInt(numEl.textContent)||0;
+  if(secs!==prevSecs){
+    numEl.textContent=secs;
+    if(secs<=3&&secs>0) playSound('tick');
+  }
+  const pct=durationMs>0?Math.max(0,(remMs/durationMs)*100):0;
+  barEl.style.width=pct+'%';
+  if(secs<=3){
+    numEl.className='tk-mon-num red';barEl.style.background='var(--red)';
+  }else if(secs<=7){
+    numEl.className='tk-mon-num amber';barEl.style.background='var(--gold)';
+  }else{
+    numEl.className='tk-mon-num green';barEl.style.background='var(--green)';
+  }
+}
+
+function tkMonShowExpiry(){
+  if(_tkMonRaf)cancelAnimationFrame(_tkMonRaf);
+  const overlay=document.getElementById('mon-tk-overlay');
+  if(!overlay)return;
+  overlay.classList.remove('hidden');
+  overlay.style.display='';// clear inline override
+  overlay.classList.add('active');
+  // Clear the number, inject TIME'S UP UI
+  document.getElementById('tk-mon-num').textContent='0';
+  document.getElementById('tk-mon-label').textContent='TIME\'S UP!';
+  document.getElementById('tk-mon-bar').style.width='0%';
+  // Animate expiry overlay
+  const burst=document.createElement('div');
+  burst.className='tk-timesup';
+  burst.innerHTML='<div class="tk-shockwave"></div><div class="tk-screen-flash"></div><div class="tk-timesup-icon">🚨</div><div class="tk-timesup-txt">TIME\'S UP!</div><div class="tk-timesup-sub">BUZZERS LOCKED</div>';
+  overlay.appendChild(burst);
+  playSound('timeout');
+  // Auto-hide after 3.5s
+  setTimeout(()=>{
+    burst.remove();
+    overlay.classList.remove('active');
+    setTimeout(()=>{overlay.classList.add('hidden');overlay.style.display='none';},400);
+  },3500);
+}
+
+function tkMonHide(){
+  if(_tkMonRaf)cancelAnimationFrame(_tkMonRaf);
+  _tkMonRaf=null;
+  const overlay=document.getElementById('mon-tk-overlay');
+  if(!overlay)return;
+  overlay.classList.remove('active');
+  setTimeout(()=>{overlay.classList.add('hidden');overlay.style.display='none';},400);
+}
+
+// ── SMART EXIT (for END / KICKED message from host) ──
+// Returns each role to their own join screen (without a game code),
+// or to landing if they arrived from the landing page without a role.
+function smartExit(){
+  if(G.peer){try{G.peer.destroy();}catch(e){}G.peer=null;}
+  if(entryMode==='player'){
+    // Clear join form so they land on a fresh player join screen
+    const rc=document.getElementById('rc-input');
+    const nm=document.getElementById('pname-input');
+    if(rc)rc.value='';
+    if(nm)nm.value='';
+    document.getElementById('jform').style.display='flex';
+    document.getElementById('bview').style.display='none';
+    document.getElementById('tgrid').innerHTML='<div class="tgrid-ph">Type the room code above to load teams</div>';
+    document.getElementById('jerr').textContent='';
+    showScreen('player');
+  }else if(entryMode==='monitor'){
+    const inp=document.getElementById('mj-rc-input');
+    if(inp)inp.value='';
+    document.getElementById('mj-err').textContent='';
+    document.getElementById('mj-joinbtn').disabled=false;
+    document.getElementById('mj-joinbtn').textContent='📺 CONNECT MONITOR';
+    showScreen('monitor-join');
+  }else if(entryMode==='scoreboard'){
+    const inp=document.getElementById('sb-rc-input');
+    if(inp)inp.value='';
+    document.getElementById('sb-err').textContent='';
+    document.getElementById('sb-joinbtn').disabled=false;
+    document.getElementById('sb-joinbtn').textContent='📊 CONNECT SCOREBOARD';
+    showScreen('scoreboard-join');
+  }else if(entryMode==='scorekeeper'){
+    const inp=document.getElementById('sk-rc-input');
+    if(inp)inp.value='';
+    document.getElementById('sk-err').textContent='';
+    document.getElementById('sk-joinbtn').disabled=false;
+    document.getElementById('sk-joinbtn').textContent='🎯 CONNECT AS SCOREKEEPER';
+    showScreen('scorekeeper-join');
+  }else if(entryMode==='timekeeper'){
+    const inp=document.getElementById('tk-rc-input');
+    if(inp)inp.value='';
+    document.getElementById('tk-err').textContent='';
+    document.getElementById('tk-joinbtn').disabled=false;
+    document.getElementById('tk-joinbtn').textContent='⏱ CONNECT AS TIMEKEEPER';
+    showScreen('timekeeper-join');
+  }else{
+    showScreen('landing');
+  }
+}
+function toggleFullscreen(){
+  const el=document.documentElement;
+  const isFS=document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement;
+  if(!isFS){
+    const req=el.requestFullscreen||el.webkitRequestFullscreen||el.webkitEnterFullscreen||el.mozRequestFullScreen||el.msRequestFullscreen;
+    if(req)req.call(el).catch(()=>{});
+  }else{
+    const exit=document.exitFullscreen||document.webkitExitFullscreen||document.webkitCancelFullScreen||document.mozCancelFullScreen||document.msExitFullscreen;
+    if(exit)exit.call(document).catch(()=>{});
+  }
+}
+
+// ── OVERLAY ──
+function showOverlay(name,team){
+  const flashEl=document.getElementById('o-flash');
+  const confettiEl=document.getElementById('o-confetti');
+  const flashOn=flashEl ? flashEl.checked : true;
+  const confettiOn=confettiEl ? confettiEl.checked : true;
+  if(!flashOn)return;
+  const col=team.color||'#FFD700';
+  document.getElementById('fbo-name').textContent=name;
+  document.getElementById('fbo-team').textContent=team.name||'';
+  document.getElementById('fbo-team').style.color=col;
+  document.getElementById('fbobg').style.background=`radial-gradient(ellipse at center,${col}55 0%,${col}20 45%,transparent 70%),rgba(0,0,0,.92)`;
+  // Set ripple color via CSS variable
+  document.getElementById('fbo').style.setProperty('--fbcol',col+'44');
+  document.getElementById('fbo').classList.add('show');
+  if(confettiOn)launchConfetti(col);
+  setTimeout(hideOverlay,4500);
+}
+function hideOverlay(){document.getElementById('fbo').classList.remove('show');stopConfetti();}
+document.getElementById('fbo').addEventListener('click',hideOverlay);
+
+// ── AUDIO ──
+let actx=null;
+function getAC(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();return actx;}
+
+// ══ PRE-UNLOCK COUNTDOWN ══════════════════════════════════════
+// startUnlockCountdown() — called by host UNLOCK button.
+// Runs a 5s broadcast countdown then calls the unmodified hostUnlock().
+// cancelCountdown() — aborts; safe to call even when no countdown running.
+let _cdTimer = null;
+let _cdRunning = false;
+
+function startUnlockCountdown(){
+  if(_cdRunning) return;
+  _cdRunning = true;
+  let secs = 5;
+  // Disable unlock button so it can't be double-triggered
+  document.querySelectorAll('.habtn.unlock').forEach(b=>{b.disabled=true;b.textContent='⏳ 5…';});
+  _applyCountdown(secs);
+  broadcastAll({type:'COUNTDOWN',secs});
+  _cdTimer = setInterval(()=>{
+    secs--;
+    // Update button label while counting
+    document.querySelectorAll('.habtn.unlock').forEach(b=>{if(secs>0)b.textContent='⏳ '+secs+'…';});
+    _applyCountdown(secs);
+    broadcastAll({type:'COUNTDOWN',secs});
+    if(secs <= 0){
+      clearInterval(_cdTimer);_cdTimer=null;_cdRunning=false;
+      // Brief pause so "⚡" frame and gong are seen/heard before unlock STATE replaces UI
+      setTimeout(()=>{
+        broadcastAll({type:'COUNTDOWN_CANCEL'}); // tell ALL clients to clear the overlay
+        hideCountdown();
+        hostUnlock(); // ← calls the original function completely unmodified
+        document.querySelectorAll('.habtn.unlock').forEach(b=>{b.disabled=false;b.textContent='🟢 UNLOCK';});
+      }, 480);
+    }
+  }, 1000);
+}
+
+function cancelCountdown(){
+  if(_cdTimer){clearInterval(_cdTimer);_cdTimer=null;}
+  _cdRunning=false;
+  broadcastAll({type:'COUNTDOWN_CANCEL'});
+  hideCountdown();
+  document.querySelectorAll('.habtn.unlock').forEach(b=>{b.disabled=false;b.textContent='🟢 UNLOCK';});
+}
+
+// _applyCountdown — renders the overlay locally (host or client).
+function _applyCountdown(secs){
+  const overlay = document.getElementById('cd-overlay');
+  const numEl   = document.getElementById('cd-num');
+  const subEl   = document.getElementById('cd-sub');
+  const lblEl   = document.getElementById('cd-lbl');
+  const ring    = document.getElementById('cd-ring');
+  const cancel  = document.getElementById('cd-cancel');
+  if(!overlay||!numEl) return;
+
+  overlay.classList.add('active');
+  if(cancel) cancel.classList.toggle('show', G.isHost);
+
+  if(secs > 0){
+    const isWarn = secs <= 2;
+    numEl.textContent = secs;
+    numEl.className = 'cd-num pop' + (isWarn?' warn':'');
+    subEl.textContent = 'GET READY…';
+    subEl.className = 'cd-sub';
+    if(lblEl) lblEl.textContent = 'BUZZERS OPEN IN';
+    // Ring pulse
+    if(ring){
+      ring.className = 'cd-ring'+(isWarn?' warn':'');
+      void ring.offsetWidth; // force reflow to restart animation
+      ring.classList.add('pulse');
+    }
+    playSound('tick');
+  } else {
+    // secs === 0 — GO frame
+    numEl.textContent = '⚡';
+    numEl.className = 'cd-num go pop';
+    subEl.textContent = 'BUZZ NOW!';
+    subEl.className = 'cd-sub go';
+    if(lblEl) lblEl.textContent = '';
+    if(ring){ ring.className='cd-ring go'; void ring.offsetWidth; ring.classList.add('pulse'); }
+    playSound('gong');
+  }
+}
+
+function hideCountdown(){
+  const overlay = document.getElementById('cd-overlay');
+  if(overlay) overlay.classList.remove('active');
+  const cancel = document.getElementById('cd-cancel');
+  if(cancel) cancel.classList.remove('show');
+}
+// ══ END COUNTDOWN ═════════════════════════════════════════════
+function playSound(type){
+  const soundOn=document.getElementById('o-sound')?.checked;
+  if(!soundOn&&type!=='timeout'&&type!=='gong')return;
+  try{const c=getAC();
+    if(type==='first'){const t=c.currentTime;[523,659,784,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;o.type='square';g.gain.setValueAtTime(0,t+i*.12);g.gain.linearRampToValueAtTime(.12,t+i*.12+.03);g.gain.exponentialRampToValueAtTime(.001,t+i*.12+.35);o.start(t+i*.12);o.stop(t+i*.12+.35);});}
+    else if(type==='buzz'){const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.setValueAtTime(400,c.currentTime);o.frequency.exponentialRampToValueAtTime(180,c.currentTime+.18);o.type='sawtooth';g.gain.setValueAtTime(.1,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.22);o.start();o.stop(c.currentTime+.22);}
+    else if(type==='unlock'){const t=c.currentTime;[300,500,750].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;o.type='sine';g.gain.setValueAtTime(.08,t+i*.09);g.gain.exponentialRampToValueAtTime(.001,t+i*.09+.18);o.start(t+i*.09);o.stop(t+i*.09+.18);});}
+    else if(type==='locked'){const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.setValueAtTime(220,c.currentTime);o.frequency.exponentialRampToValueAtTime(100,c.currentTime+.22);o.type='square';g.gain.setValueAtTime(.07,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.28);o.start();o.stop(c.currentTime+.28);}
+    else if(type==='join'){const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.setValueAtTime(600,c.currentTime);o.frequency.exponentialRampToValueAtTime(900,c.currentTime+.1);o.type='sine';g.gain.setValueAtTime(.06,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.18);o.start();o.stop(c.currentTime+.18);}
+    else if(type==='timeout'){const t=c.currentTime;[400,300,200].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;o.type='square';g.gain.setValueAtTime(.08,t+i*.15);g.gain.exponentialRampToValueAtTime(.001,t+i*.15+.15);o.start(t+i*.15);o.stop(t+i*.15+.15);});}
+    else if(type==='gong'){const t=c.currentTime;
+      // Strike transient — short noise burst
+      const buf=c.createBuffer(1,Math.floor(c.sampleRate*.09),c.sampleRate);
+      const dat=buf.getChannelData(0);
+      for(let i=0;i<dat.length;i++) dat[i]=(Math.random()*2-1)*Math.pow(1-(i/dat.length),1.8);
+      const ns=c.createBufferSource();ns.buffer=buf;
+      const ng=c.createGain();ng.gain.setValueAtTime(.35,t);ng.gain.exponentialRampToValueAtTime(.001,t+.09);
+      ns.connect(ng);ng.connect(c.destination);ns.start(t);
+      // Resonant bell harmonics — deep long ring
+      [[110,.18,3.2],[165,.13,2.8],[220,.1,2.4],[330,.08,2],[440,.065,1.7],[550,.05,1.4]].forEach(([freq,vol,decay])=>{
+        const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);
+        o.frequency.value=freq;o.type='sine';
+        g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+decay);
+        o.start(t);o.stop(t+decay);
+      });}
+    else if(type==='tick'){const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.setValueAtTime(880,c.currentTime);o.type='sine';g.gain.setValueAtTime(.07,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.08);o.start();o.stop(c.currentTime+.08);}
+  }catch(e){}
+}
+
+// ── CONFETTI ──
+let caf=null;
+function launchConfetti(col){
+  const cv=document.getElementById('confetti'),cx=cv.getContext('2d');
+  cv.width=innerWidth;cv.height=innerHeight;
+  const cols=[col,'#FFD700','#FFFFFF','#FF3B3B','#00FF88'];
+  const ps=Array.from({length:150},()=>({x:Math.random()*cv.width,y:-10-Math.random()*120,r:3+Math.random()*6,d:1.2+Math.random()*2.5,c:cols[~~(Math.random()*cols.length)],a:0,as:.1+Math.random()*.25}));
+  function draw(){cx.clearRect(0,0,cv.width,cv.height);ps.forEach(p=>{cx.beginPath();cx.fillStyle=p.c;cx.save();cx.translate(p.x,p.y);cx.rotate(p.a);cx.fillRect(-p.r/2,-p.r/2,p.r,p.r*.5);cx.restore();p.y+=p.d;p.a+=p.as;p.x+=Math.sin(p.a)*1.5;if(p.y>cv.height)p.y=-10;});caf=requestAnimationFrame(draw);}
+  draw();
+}
+function stopConfetti(){if(caf)cancelAnimationFrame(caf);const c=document.getElementById('confetti');c.getContext('2d').clearRect(0,0,c.width,c.height);}
+function stopTimer(){
+  G.timerRunning=false;
+  if(timerRAF)cancelAnimationFrame(timerRAF);
+  const btn=document.getElementById('timer-toggle-btn');
+  if(btn){btn.textContent='Start';btn.classList.remove('active');}
+  const el=document.getElementById('qtimer-display');
+  if(el)el.className='qtimer-display';
+  const mel=document.getElementById('mon-timer');
+  if(mel)mel.style.display='none';
+}
+
+// ── UTILS ──
+function fmtMs(ms){return ms<1000?`${Math.round(ms)}ms`:`${(ms/1000).toFixed(3)}s`;}
+function lighten(h,a){const r=Math.min(255,parseInt(h.slice(1,3),16)+a),g=Math.min(255,parseInt(h.slice(3,5),16)+a),b=Math.min(255,parseInt(h.slice(5,7),16)+a);return `rgb(${r},${g},${b})`;}
+function darken(h,a){const r=Math.max(0,parseInt(h.slice(1,3),16)-a),g=Math.max(0,parseInt(h.slice(3,5),16)-a),b=Math.max(0,parseInt(h.slice(5,7),16)-a);return `rgb(${r},${g},${b})`;}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+let tt=null;
+function toast(msg){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');if(tt)clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('show'),2600);}
+
+// ══════════════════════════════════════════════════════════
+// ── TIMEKEEPER MODULE ──
+// ══════════════════════════════════════════════════════════
+
+// ── INIT — URL ROUTING ──
+// Supported params:
+//   ?mode=player&join=CODE     → Player join (code pre-filled, auto-loads teams)
+//   ?mode=monitor&join=CODE    → Monitor (auto-connect + fullscreen)
+//   ?mode=scoreboard&join=CODE → Scoreboard (auto-connect)
+//   ?mode=scorekeeper&join=CODE→ Scorekeeper (auto-connect)
+//   ?mode=host                 → Host setup screen
+//   ?join=CODE                 → Legacy: player join (backwards compat)
+(function init(){
+  const params=new URLSearchParams(location.search);
+  const mode=(params.get('mode')||'').toLowerCase();
+  const joinCode=(params.get('join')||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+
+  initTeams();
+
+  if(mode==='host'){
+    showScreen('setup');
+    return;
+  }
+
+  if(mode==='player'||(!mode&&joinCode)){
+    entryMode='player';
+    showScreen('player');
+    if(joinCode){
+      document.getElementById('rc-input').value=joinCode;
+      onCodeInput(joinCode);
+    }
+    return;
+  }
+
+  if(mode==='monitor'){
+    entryMode='monitor';
+    if(joinCode){
+      // Auto-connect monitor
+      document.getElementById('mj-rc-input').value=joinCode;
+      showScreen('monitor-join');
+      // Slight delay so DOM is ready
+      setTimeout(()=>joinAsMonitor(),300);
+    }else{
+      showScreen('monitor-join');
+    }
+    return;
+  }
+
+  if(mode==='scoreboard'){
+    entryMode='scoreboard';
+    if(joinCode){
+      document.getElementById('sb-rc-input').value=joinCode;
+      showScreen('scoreboard-join');
+      setTimeout(()=>joinAsScoreboard(),300);
+    }else{
+      showScreen('scoreboard-join');
+    }
+    return;
+  }
+
+  if(mode==='scorekeeper'){
+    entryMode='scorekeeper';
+    if(joinCode){
+      document.getElementById('sk-rc-input').value=joinCode;
+      showScreen('scorekeeper-join');
+      setTimeout(()=>joinAsScorekeeper(),300);
+    }else{
+      showScreen('scorekeeper-join');
+    }
+    return;
+  }
+
+  if(mode==='timekeeper'){
+    entryMode='timekeeper';
+    if(joinCode){
+      document.getElementById('tk-rc-input').value=joinCode;
+      showScreen('timekeeper-join');
+      setTimeout(()=>joinAsTimekeeper(),300);
+    }else{
+      showScreen('timekeeper-join');
+    }
+    return;
+  }
+
+  // Default: landing
+  checkRecovery();
+  showScreen('landing');
+})();
+</script>
+</body>
+</html>
